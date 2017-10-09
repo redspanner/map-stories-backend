@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Console = console;
 
 const editorSchema = new Schema({
   id: String,
@@ -23,7 +22,7 @@ const eventSchema = new Schema({
 });
 
 const storySchema = new Schema({
-  editor: editorSchema,
+  editor: { type: Schema.Types.ObjectId, ref: 'Editor' },
   title: String,
   id: String,
   map: String,
@@ -37,36 +36,7 @@ const storySchema = new Schema({
 
 const Story = mongoose.model('Story', storySchema);
 
-module.exports.getAllStories = async () => {
-  try {
-    const stories = await Story
-      .find()
-      .select('editor title tagLine'); //id is returned by default
-    return stories;
-  } catch (error) {
-    Console.error(error);
-  }
-};
-
-module.exports.viewStory = async (params) => {
-  try {
-    const story = await Story.findOne({_id : params.id});
-    return story;
-  } catch (error) {
-    Console.error(error);
-  }
-};
-
-module.exports.createStory = async (story) => {
-  try {
-    const newStory = new Story(story);
-    await newStory.save();
-  } catch (error) {
-    Console.error(error);
-  }
-};
-
-module.exports.editStoryMeta = async (edits, params) => {
+Story.edit = edit = async (edits, params) => {
   const updatedProps = {};
   if (edits.title) updatedProps.title = edits.title;
   if (edits.map) updatedProps.map = edits.map;
@@ -74,12 +44,22 @@ module.exports.editStoryMeta = async (edits, params) => {
   if (edits.duration) updatedProps.duration = edits.duration;
   if (edits.published) updatedProps.published = edits.published;
   if (edits.likes) updatedProps.likes = edits.likes;
-  await Story.findOneAndUpdate({_id : params.id}, {$set: updatedProps}, (error, doc) => {
-    if (error) {
-      Console.log(error);
-    }
-    Console.log(doc);
-  });
+  return await Story.findOneAndUpdate({_id : params.id}, {$set: updatedProps});
 };
 
-// module.exports = Story;
+const getAllStories = () => {
+  return Story
+      .find()
+      .select('editor title tagLine'); //id is returned by default
+};
+
+const viewStory = (params) => {
+  return Story.findOne({_id : params.id});
+};
+
+const createStory = (story) => {
+  const newStory = new Story(story);
+  return newStory.save();
+};
+
+module.exports = Story;

@@ -8,10 +8,22 @@ const router = require('./router');
 const db = require('./db');
 
 app
+  .use(async (cxt, next) => {
+    try {
+      await next();
+    } catch (e) {
+      ctx.status = 500;
+      if (e.message) {
+        ctx.body = {
+          errors: [e.message]
+        };
+      }
+    }
+  })
   .use(bodyParser())
   .use(cors())
   .use(router.routes())
-  .use(router.allowedMethods())
+  .use(router.allowedMethods());
 
 app.listen(3000, ()=> {
   Console.log('koa app listening on port 3000');
