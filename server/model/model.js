@@ -48,6 +48,7 @@ Story.edit = edit = async (edits, params) => {
 };
 
 const getAllStories = () => {
+  console.log('MODEL:::::::::::')
   return Story
       .find()
       .select('editor title tagLine'); //id is returned by default

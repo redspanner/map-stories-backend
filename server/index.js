@@ -8,18 +8,18 @@ const router = require('./router');
 const db = require('./db');
 
 app
-  .use(async (cxt, next) => {
-    try {
-      await next();
-    } catch (e) {
-      ctx.status = 500;
-      if (e.message) {
-        ctx.body = {
-          errors: [e.message]
-        };
-      }
-    }
-  })
+  // .use(async (cxt, next) => {
+  //   try {
+  //     await next();
+  //   } catch (e) {
+  //     ctx.status = 500;
+  //     if (e.message) {
+  //       ctx.body = {
+  //         errors: [e.message]
+  //       };
+  //     }
+  //   }
+  // })
   .use(bodyParser())
   .use(cors())
   .use(router.routes())
