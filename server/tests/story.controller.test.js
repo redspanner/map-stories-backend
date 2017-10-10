@@ -9,13 +9,14 @@ chai.should();
 const mockStoryModel = {};
 const proxyquire = require('proxyquire');
 
-//creates mock model functions to replace original model functions in controller
-// const StoriesController = proxyquire('../controller/controller',
-//   { '../model/model' : mockStoryModel}
-// );
+// creates mock model functions to replace original model functions in controller
+const StoriesController = proxyquire('../controller/story.controller',
+  { '../model/story.model' : mockStoryModel}
+);
 
 describe('Stories Collection', () => {
   // it('should return editor, tagline and title for each story', async () => {
+  // //Would prefer to do this model instead of use serializer
   //   const mockStories = [{
   //     _id: 'mockID',
   //     __v: '1.3.5',
@@ -36,7 +37,20 @@ describe('Stories Collection', () => {
   //   ctx.body[0].should.not.have.property('__v');
   // });
 
-  it('should return no more stories than the maximum defined by pagination settings');
+  it('should return no more stories than the maximum defined by pagination settings', async () => {
+    const mockStories = Array(60).fill(0);
+    for (let i = 0; i < mockStories.length; i++) {
+      mockStories[i] = i;
+    }
+    mockStoryModel.getAllStories = sinon.stub().returns(mockStories);
+    const ctx = {
+      params: {page: 1},
+      body: null,
+    };
+    const res = await StoriesController.getAllStories(ctx);
+    ctx.body.should.have.lengthOf(20);
+  });
+
   it('should return only records that match any query terms provided');
   it('should return empty array if no records match the query');
   it('should return 400 if pagination is not valid');

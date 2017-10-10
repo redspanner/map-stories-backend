@@ -1,12 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Editor = require('../model/editor.model'); //required???
-
-const editorSchema = new Schema({
-  _id: Schema.Types.ObjectId,
-  name: String,
-  avatar: String,
-});
 
 const attachmentsSchema = new Schema({
   text: String,
@@ -39,7 +32,7 @@ const storySchema = new Schema({
 const Story = mongoose.model('Story', storySchema);
 
 
-Story.edit = edit = async (edits, params) => {
+Story.editStory = (edit) => async (edits, params) => {
   const updatedProps = {};
   if (edits.title) updatedProps.title = edits.title;
   if (edits.map) updatedProps.map = edits.map;

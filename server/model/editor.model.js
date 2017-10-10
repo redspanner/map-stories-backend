@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const editorSchema = new Schema({
-  // _id: Schema.Types.ObjectId,
+  // _id: Schema.Types.ObjectId, //in documentation (http://mongoosejs.com/docs/populate.html) but causes error, why?
   name: String,
   avatar: String,
 });
@@ -10,7 +10,6 @@ const editorSchema = new Schema({
 const Editor = mongoose.model('Editor', editorSchema);
 
 Editor.createEditor = async (name) => {
-  console.log('XXXXXXXXXXXXXXXX');
   const newEditor = new Editor (name);
   try {
     return await newEditor.save();

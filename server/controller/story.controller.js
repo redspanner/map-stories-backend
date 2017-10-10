@@ -5,7 +5,11 @@ const Editor = require('../model/editor.model');
 const getAllStories = async (ctx, next) => {
   try {
     const stories = await Story.getAllStories();
-    ctx.body = stories;
+    const pagination = ctx.params.page - 1;
+    const limit = 20;
+    const results = stories.slice(pagination*limit, pagination*limit + limit);
+    ctx.body = results;
+    return results
   } catch (error) {
     console.log(error);
   }
@@ -23,14 +27,13 @@ const viewStory = async (ctx, next) => {
 const createStory = async (ctx, next) => {
   try {
     const storyData = {
+      editor: await Editor.findOne(),
       title: ctx.request.body.title,
       tagLine: ctx.request.body.tagLine,
       map: ctx.request.body.map,
       duration: ctx.request.body.duration,
-      editor: await Editor.findOne()
     };
     const createdStory = await Story.createStory(storyData);
-    console.log(createdStory);
     ctx.status = 201;
     ctx.body = createdStory;
   } catch (error) {

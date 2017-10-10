@@ -12,6 +12,7 @@ app
     try {
       await next();
     } catch (e) {
+      console.error(e);
       ctx.status = 500;
       if (e.message) {
         ctx.body = {

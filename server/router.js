@@ -5,7 +5,7 @@ const editorController = require('./controller/editor.controller');
 const router = new Router();
 
 //user actions
-router.get('/stories', storyController.getAllStories);
+router.get('/stories/:page', storyController.getAllStories);
 router.get('/stories/:id', storyController.viewStory);
 
 //editor actions
