@@ -22,7 +22,7 @@ const eventSchema = new Schema({
 });
 
 const storySchema = new Schema({
-  editor: { type: Schema.Types.ObjectId, ref: 'Editor' },
+  editor: [{ type: Schema.Types.ObjectId, ref: 'editorSchema' }],
   title: String,
   id: String,
   map: String,
@@ -47,20 +47,41 @@ Story.edit = edit = async (edits, params) => {
   return await Story.findOneAndUpdate({_id : params.id}, {$set: updatedProps});
 };
 
-const getAllStories = () => {
-  console.log('MODEL:::::::::::')
+Story.getAllStories = () => {
   return Story
       .find()
       .select('editor title tagLine'); //id is returned by default
 };
 
-const viewStory = (params) => {
+
+Story.viewStory = (params) => {
   return Story.findOne({_id : params.id});
 };
 
-const createStory = (story) => {
+
+Story.createStory = async (story) => {
   const newStory = new Story(story);
-  return newStory.save();
+  console.log('-----------');
+  console.log(newStory);
+  console.log('-----------');
+  try {
+    await newStory.save();
+  } catch (e) {
+    console.log('err', e);
+  } finally {
+
+  }
 };
 
 module.exports = Story;
+
+// module.exports.getAllStories = async () => {
+//   try {
+//     const stories = await Story
+//       .find()
+//       .select('editor title tagLine');
+//       return stories;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };

@@ -3,6 +3,7 @@ const Story = require('../model/model');
 
 const getAllStories = async (ctx, next) => {
   try {
+
     const stories = await Story.getAllStories();
     ctx.body = stories;
   } catch (error) {
@@ -21,7 +22,9 @@ const viewStory = async (ctx, next) => {
 
 const createStory = async (ctx, next) => {
   try {
+    console.log('FIRST:::::',ctx.request.body)
     const createdStory = await Story.createStory(ctx.request.body);
+        // console.log('SECOND:::::',ctx)
     ctx.status = 200;
   } catch (error) {
     ctx.throw('Could not create story!');
