@@ -1,14 +1,16 @@
 const Router = require('koa-router');
 
-const controller = require('./controller/controller');
+const storyController = require('./controller/story.controller');
+const editorController = require('./controller/editor.controller');
 const router = new Router();
 
 //user actions
-router.get('/stories', controller.getAllStories);
-router.get('/stories/:id', controller.viewStory);
+router.get('/stories', storyController.getAllStories);
+router.get('/stories/:id', storyController.viewStory);
 
 //editor actions
-router.post('/stories', controller.createStory);
-router.put('/stories/:id', controller.editStoryMeta);
+router.post('/sign-up', editorController.createEditor);
+router.post('/stories', storyController.createStory);
+router.put('/stories/:id', storyController.editStoryMeta);
 
 module.exports = router;

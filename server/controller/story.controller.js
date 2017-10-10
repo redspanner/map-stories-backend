@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-const Story = require('../model/model');
+const Story = require('../model/story.model');
+const Editor = require('../model/editor.model');
 
 const getAllStories = async (ctx, next) => {
   try {
-
     const stories = await Story.getAllStories();
     ctx.body = stories;
   } catch (error) {
@@ -22,10 +22,17 @@ const viewStory = async (ctx, next) => {
 
 const createStory = async (ctx, next) => {
   try {
-    console.log('FIRST:::::',ctx.request.body)
-    const createdStory = await Story.createStory(ctx.request.body);
-        // console.log('SECOND:::::',ctx)
-    ctx.status = 200;
+    const storyData = {
+      title: ctx.request.body.title,
+      tagLine: ctx.request.body.tagLine,
+      map: ctx.request.body.map,
+      duration: ctx.request.body.duration,
+      editor: await Editor.findOne()
+    };
+    const createdStory = await Story.createStory(storyData);
+    console.log(createdStory);
+    ctx.status = 201;
+    ctx.body = createdStory;
   } catch (error) {
     ctx.throw('Could not create story!');
   }

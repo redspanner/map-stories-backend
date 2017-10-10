@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Editor = require('../model/editor.model'); //required???
 
 const editorSchema = new Schema({
-  id: String,
+  _id: Schema.Types.ObjectId,
   name: String,
+  avatar: String,
 });
 
 const attachmentsSchema = new Schema({
@@ -22,7 +24,7 @@ const eventSchema = new Schema({
 });
 
 const storySchema = new Schema({
-  editor: [{ type: Schema.Types.ObjectId, ref: 'editorSchema' }],
+  editor: { type: Schema.Types.ObjectId, ref: 'Editor' },
   title: String,
   id: String,
   map: String,
@@ -35,6 +37,7 @@ const storySchema = new Schema({
 });
 
 const Story = mongoose.model('Story', storySchema);
+
 
 Story.edit = edit = async (edits, params) => {
   const updatedProps = {};
@@ -61,27 +64,11 @@ Story.viewStory = (params) => {
 
 Story.createStory = async (story) => {
   const newStory = new Story(story);
-  console.log('-----------');
-  console.log(newStory);
-  console.log('-----------');
   try {
-    await newStory.save();
+    return await newStory.save();
   } catch (e) {
     console.log('err', e);
-  } finally {
-
   }
 };
 
 module.exports = Story;
-
-// module.exports.getAllStories = async () => {
-//   try {
-//     const stories = await Story
-//       .find()
-//       .select('editor title tagLine');
-//       return stories;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
