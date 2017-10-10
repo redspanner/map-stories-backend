@@ -49,6 +49,9 @@ Story.getAllStories = () => {
       .select('editor title tagLine'); //id is returned by default
 };
 
+// Story.getQueriedStory = (query) => {
+//
+// };
 
 Story.viewStory = (params) => {
   return Story.findOne({_id : params.id});

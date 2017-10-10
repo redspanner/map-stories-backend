@@ -18,4 +18,12 @@ Editor.createEditor = async (name) => {
   }
 };
 
+Editor.searchEditors = async (query) => {
+  console.log(query)
+  const editors = await Editor.find({'name' : query});
+  if (editors) {
+    return editors;
+  }
+};
+
 module.exports = Editor;
