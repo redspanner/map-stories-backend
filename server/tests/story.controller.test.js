@@ -47,11 +47,31 @@ describe('Stories Collection', () => {
       params: {page: 1},
       body: null,
     };
-    const res = await StoriesController.getAllStories(ctx);
+    await StoriesController.getAllStories(ctx);
     ctx.body.should.have.lengthOf(20);
   });
 
-  it('should return only records that match any query terms provided');
+  it('should return only records that match any query terms provided', async () => {
+    const mockStories = [
+      {
+        'title': 'Black Books',
+        'tagLine': 'Bernard Black is a Queen',
+        'editor': '59dca04815c386136f21f4b5'
+      },
+      {
+        'title': 'West World',
+        'tagLine': 'Dolores Wild West',
+        'editor': '59dca04815c386136f21f4b5'
+      },
+    ];
+    mockStoryModel.getAllStories = sinon.stub().returns(mockStories);
+    const ctx = {
+      params: {page: 1},
+      body: null,
+    };
+
+  });
+
   it('should return empty array if no records match the query');
   it('should return 400 if pagination is not valid');
   it('should be able to view own stories');

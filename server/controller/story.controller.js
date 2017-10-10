@@ -4,12 +4,16 @@ const Editor = require('../model/editor.model');
 
 const getAllStories = async (ctx, next) => {
   try {
-    const stories = await Story.getAllStories();
-    const pagination = ctx.params.page - 1;
-    const limit = 20;
-    const results = stories.slice(pagination*limit, pagination*limit + limit);
-    ctx.body = results;
-    return results
+    const page = parseInt(ctx.params.page);
+    if (typeof page === 'number') {
+      const stories = await Story.getAllStories();
+      const pagination = page - 1;
+      const limit = 20;
+      const results = stories.slice(pagination*limit, pagination*limit + limit);
+      ctx.body = results;
+    } else {
+      console.log('foo')
+    }
   } catch (error) {
     console.log(error);
   }
