@@ -17,16 +17,24 @@ const getAllStories = async (ctx, next) => {
   }
 };
 
-const getQueriedStory = async (ctx, next) => {
-  const query = ctx.request.query.q
+const getQuery = async (ctx, next) => {
+  const query = ctx.request.query.q;
   const searchedEditors = await Editor.searchEditors(query);
-  // if (searchedEditors) {
-  //   //use editor _id to search stories
-  //   //be aware that all authors are Stephen Hawking at this point
-  // } else {
-  //
-  // }
-  ctx.body = searchedEditors;
+  if (searchedEditors) {
+    const editorIds = searchedEditors.map(editor => editor['_id']);
+    const queriedStories = []
+    for (let i = 0; i < editorIds.length; i++) {
+      const stories = await Story.getStoryByEditor(editorIds[i]);
+      if (stories.length > 0) {
+        for (let j = 0; j < stories.length; j++) {
+          queriedStories.push(stories[j]);
+        }
+      }
+    }
+    ctx.body = queriedStories;
+  } else {
+    console.log('search is for title')
+  }
 };
 
 const viewStory = async (ctx, next) => {
@@ -41,11 +49,12 @@ const viewStory = async (ctx, next) => {
 const createStory = async (ctx, next) => {
   try {
     const storyData = {
-      editor: await Editor.findOne(),
+      editor: await Editor.findOne({'name':'Ian Banks'}),
       title: ctx.request.body.title,
       tagLine: ctx.request.body.tagLine,
       map: ctx.request.body.map,
       duration: ctx.request.body.duration,
+      // events: await Events.createEvent(),
     };
     const createdStory = await Story.createStory(storyData);
     ctx.status = 201;
@@ -66,7 +75,7 @@ const editStoryMeta = async (ctx, next) => {
 
 module.exports = {
   getAllStories,
-  getQueriedStory,
+  getQuery,
   viewStory,
   createStory,
   editStoryMeta,

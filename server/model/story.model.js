@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const ObjectId = require('mongoose').Types.ObjectId;
 const Schema = mongoose.Schema;
 
 const attachmentsSchema = new Schema({
@@ -19,14 +20,10 @@ const eventSchema = new Schema({
 const storySchema = new Schema({
   editor: { type: Schema.Types.ObjectId, ref: 'Editor' },
   title: String,
-  id: String,
   map: String,
   tagLine: String,
-  dateCreated: String,
-  published: Boolean,
-  likes: Number,
   duration: String,
-  events:[eventSchema],
+  events:[eventSchema],//[{ type: Schema.Types.ObjectId, ref: 'Event' }]
 });
 
 const Story = mongoose.model('Story', storySchema);
@@ -49,9 +46,28 @@ Story.getAllStories = () => {
       .select('editor title tagLine'); //id is returned by default
 };
 
-// Story.getQueriedStory = (query) => {
-//
-// };
+Story.getQueriedStories = async (query) => {
+  const stories = await Story.find({'_id' : new RegExp(query, 'gi')});
+  if (stories) {
+    return stories;
+  }
+};
+
+
+Story.getStoryByEditor = async (id) => {
+  const stories = await Story
+      .find({'editor' : new ObjectId(id)})
+      .populate('editor');
+
+  if (stories) {
+    return stories;
+  }
+
+};
+
+Story.getStoryByTitle = async (query) => {
+ console.log('foo');
+};
 
 Story.viewStory = (params) => {
   return Story.findOne({_id : params.id});

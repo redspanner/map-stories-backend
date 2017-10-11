@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const ObjectId = require('mongoose').Types.ObjectId;
 const Schema = mongoose.Schema;
 
 const editorSchema = new Schema({
@@ -9,18 +10,22 @@ const editorSchema = new Schema({
 
 const Editor = mongoose.model('Editor', editorSchema);
 
-Editor.createEditor = async (name) => {
-  const newEditor = new Editor (name);
-  try {
-    return await newEditor.save();
-  } catch (e) {
-    console.log('err', e);
-  }
+Editor.createEditor = async (editorData) => {
+  const newEditor = new Editor ({
+    // _id: new ObjectId(),
+    name: editorData.name,
+    avatar: editorData.avatar,
+  });
+  await newEditor.save();
+  // try {
+  //   return await newEditor.save();
+  // } catch (e) {
+  //   console.log('err', e);
+  // }
 };
 
 Editor.searchEditors = async (query) => {
-  console.log(query)
-  const editors = await Editor.find({'name' : query});
+  const editors = await Editor.find({'name' : new RegExp(query, 'gi')});
   if (editors) {
     return editors;
   }
