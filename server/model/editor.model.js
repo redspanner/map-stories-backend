@@ -17,11 +17,6 @@ Editor.createEditor = async (editorData) => {
     avatar: editorData.avatar,
   });
   await newEditor.save();
-  // try {
-  //   return await newEditor.save();
-  // } catch (e) {
-  //   console.log('err', e);
-  // }
 };
 
 Editor.searchEditors = async (query) => {

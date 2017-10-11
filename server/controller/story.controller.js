@@ -18,23 +18,26 @@ const getAllStories = async (ctx, next) => {
 };
 
 const getQuery = async (ctx, next) => {
+  const searchResults = []
   const query = ctx.request.query.q;
+
   const searchedEditors = await Editor.searchEditors(query);
-  if (searchedEditors) {
-    const editorIds = searchedEditors.map(editor => editor['_id']);
-    const queriedStories = []
-    for (let i = 0; i < editorIds.length; i++) {
-      const stories = await Story.getStoryByEditor(editorIds[i]);
-      if (stories.length > 0) {
-        for (let j = 0; j < stories.length; j++) {
-          queriedStories.push(stories[j]);
-        }
+  const editorIds = searchedEditors.map(editor => editor['_id']);
+  for (let i = 0; i < editorIds.length; i++) {
+    const storiesByEditor = await Story.getStoriesByEditor(editorIds[i]);
+    if (storiesByEditor.length > 0) {
+      for (let j = 0; j < storiesByEditor.length; j++) {
+        searchResults.push(storiesByEditor[j]);
       }
     }
-    ctx.body = queriedStories;
-  } else {
-    console.log('search is for title')
   }
+
+  const storiesByTitle = await Story.getStoriesByTitle(query);
+  for (let k = 0; k < storiesByTitle.length; k++) {
+    searchResults.push(storiesByTitle[k]);
+  }
+
+  ctx.body = searchResults;
 };
 
 const viewStory = async (ctx, next) => {

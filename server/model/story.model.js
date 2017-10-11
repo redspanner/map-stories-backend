@@ -46,15 +46,19 @@ Story.getAllStories = () => {
       .select('editor title tagLine'); //id is returned by default
 };
 
-Story.getQueriedStories = async (query) => {
-  const stories = await Story.find({'_id' : new RegExp(query, 'gi')});
+Story.getStoriesByTitle = async (query) => {
+  const stories = await Story
+      .find({'title' : new RegExp(query, 'gi')})
+      .populate('editor');
+
   if (stories) {
     return stories;
   }
+
 };
 
 
-Story.getStoryByEditor = async (id) => {
+Story.getStoriesByEditor = async (id) => {
   const stories = await Story
       .find({'editor' : new ObjectId(id)})
       .populate('editor');
@@ -65,9 +69,6 @@ Story.getStoryByEditor = async (id) => {
 
 };
 
-Story.getStoryByTitle = async (query) => {
- console.log('foo');
-};
 
 Story.viewStory = (params) => {
   return Story.findOne({_id : params.id});
