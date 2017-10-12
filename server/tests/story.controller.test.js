@@ -53,10 +53,7 @@ describe('Stories Collection', () => {
       },
       body: null,
     };
-    // await getQuery(ctx);
-    // ctx.body[0].editor.name.should.be('Stephen Hawking');
-    // ctx.body[0].title.should.be('Black Hawk Down');
-    // ctx.body.should.be.ofLength(2);
+    //StoriesController.getQuery(ctx).should.eventually.equal(mockObj);
   });
 
   it('should return empty array if no records match the query');
@@ -77,19 +74,29 @@ describe('Story', () => {
         },
       }
     };
-    await StoriesController.createStory(ctx)
-    ctx.body.message.should.equal('Your story needs a valid title!')
+    const mockError = {'message': 'Your story needs a valid title!'};
+    StoriesController.createStory(ctx).should.eventually.equal(mockError);
+    // await StoriesController.createStory(ctx);
+    // ctx.body.should.eventually.equal(mockError);
   });
 
   it('should not publish a story if no events in it', async () => {
+
     const ctx = {
       request: {
-
+        body: {
+          published: true,
+        },
       },
       params: {
-        id: 123,
+        _id: '123',
       }
-    }
+    };
+
+    const mockStory = mocks.mockStory;
+    mockStoryModel.getAllStories = sinon.stub().returns(mockStory);
+    const mockError = {'message': 'A Story cannot be published without events!'};
+    StoriesController.editStory(ctx).should.eventually.equal(mockError);
   });
 
   it('should remove story from DB when deleted');

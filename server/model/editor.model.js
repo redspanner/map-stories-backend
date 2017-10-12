@@ -20,10 +20,7 @@ Editor.createEditor = async (editorData) => {
 };
 
 Editor.searchEditors = async (query) => {
-  const editors = await Editor.find({'name' : new RegExp(query, 'gi')});
-  if (editors) {
-    return editors;
-  }
+  return await Editor.find({'name' : new RegExp(query, 'gi')});
 };
 
 module.exports = Editor;

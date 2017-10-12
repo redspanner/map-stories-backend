@@ -41,25 +41,19 @@ Story.getAllStories = () => {
       .select('editor title tagLine'); //id is returned by default
 };
 
-Story.getStoriesByTitle = async (query) => {
-  const stories = await Story
-      .find({'title' : new RegExp(query, 'gi')})
-      .populate({path: 'editor', select: 'name avatar'})
-      .select('editor title tagLine');
-  if (stories) {
-    return stories;
-  }
+Story.getStoriesByTitle = (query) => {
+  return Story
+    .find({'title' : new RegExp(query, 'gi')})
+    .populate({path: 'editor', select: 'name avatar'})
+    .select('editor title tagLine');
 };
 
 
-Story.getStoriesByEditor = async (id) => {
-  const stories = await Story
-      .find({'editor' : new ObjectId(id)})
-      .populate({path: 'editor', select: 'name avatar'})
-      .select('editor title tagLine');
-  if (stories) {
-    return stories;
-  }
+Story.getStoriesByEditor = (id) => {
+  return Story
+    .find({'editor' : new ObjectId(id)})
+    .populate({path: 'editor', select: 'name avatar'})
+    .select('editor title tagLine');
 };
 
 
@@ -69,13 +63,8 @@ Story.findStory = (storyId) => {
 };
 
 
-Story.createStory = async (story) => {
-  const newStory = new Story(story);
-  try {
-    return await newStory.save();
-  } catch (e) {
-    console.log('err', e);
-  }
+Story.createStory = (newStory) => {
+  return newStory.save()
 };
 
 module.exports = Story;

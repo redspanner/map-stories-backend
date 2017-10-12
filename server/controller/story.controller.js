@@ -3,17 +3,13 @@ const Story = require('../model/story.model');
 const Editor = require('../model/editor.model');
 
 const getAllStories = async (ctx, next) => {
-  try {
-    const page = parseInt(ctx.params.page);
-    if (ctx.params.page && typeof page === 'number') {
-      const stories = await Story.getAllStories();
-      const pagination = page - 1;
-      const limit = 20;
-      const results = stories.slice(pagination*limit, pagination*limit + limit);
-      ctx.body = results;
-    }
-  } catch (error) {
-    console.log(error);
+  const page = parseInt(ctx.params.page);
+  if (ctx.params.page && typeof page === 'number') {
+    const stories = await Story.getAllStories();
+    const pagination = page - 1;
+    const limit = 20;
+    const results = stories.slice(pagination*limit, pagination*limit + limit);
+    ctx.body = results;
   }
 };
 
@@ -30,13 +26,12 @@ const getQuery = async (ctx, next) => {
       }
     }
   }
-
   const storiesByTitle = await Story.getStoriesByTitle(query);
   for (let k = 0; k < storiesByTitle.length; k++) {
     searchResults.push(storiesByTitle[k]);
   }
-
   ctx.body = searchResults;
+  return searchResults;
 };
 
 const findStory = async (ctx, next) => {
@@ -52,15 +47,16 @@ const createStory = async (ctx, next) => {
     tagLine: ctx.request.body.tagLine,
     map: ctx.request.body.map,
     duration: ctx.request.body.duration,
-    // events: await Events.createEvent(),
+    events: [],
   };
   if (storyData.title.length > 1) {
-    const createdStory = await Story.createStory(storyData);
+    const newStory = new Story(storyData);
+    const createdStory = await Story.createStory(newStory);
     ctx.status = 201;
     ctx.body = createdStory;
   } else {
     ctx.body = {'message': 'Your story needs a valid title!'};
-    done();
+    return ctx.body; //possible to pass test w/o returning anything?
   }
 };
 
@@ -72,8 +68,8 @@ const editStory = async (ctx, next) => {
   if (edits.published) {
     const storyToPublish = await Story.findStory(storyId);
     if (storyToPublish.events.length < 1) {
-      ctx.body = {'message' : 'A Story cannot be published without events!'};
-      return;
+      ctx.body = {'message': 'A Story cannot be published without events!'};
+      return ctx.body;
     }
   }
 
@@ -89,10 +85,16 @@ const editStory = async (ctx, next) => {
   ctx.body = updatedStory;
 };
 
+const deleteStory = async (ctx, next) => {
+  // const storyId = ctx.params.id;
+  // await Story.delete
+};
+
 module.exports = {
   getAllStories,
   getQuery,
   findStory,
   createStory,
   editStory,
+  deleteStory,
 };
