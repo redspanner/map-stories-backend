@@ -29,49 +29,43 @@ const storySchema = new Schema({
 const Story = mongoose.model('Story', storySchema);
 
 
-Story.editStory = (edit) => async (edits, params) => {
-  const updatedProps = {};
-  if (edits.title) updatedProps.title = edits.title;
-  if (edits.map) updatedProps.map = edits.map;
-  if (edits.tagLine) updatedProps.tagLine = edits.tagLine;
-  if (edits.duration) updatedProps.duration = edits.duration;
-  if (edits.published) updatedProps.published = edits.published;
-  if (edits.likes) updatedProps.likes = edits.likes;
-  return await Story.findOneAndUpdate({_id : params.id}, {$set: updatedProps});
+Story.editStory = (storyId, updatedProps) => {
+  return Story
+      .findOneAndUpdate({_id : storyId}, {$set: updatedProps});
 };
 
 Story.getAllStories = () => {
   return Story
       .find()
+      .populate({path: 'editor', select: 'name avatar'})
       .select('editor title tagLine'); //id is returned by default
 };
 
 Story.getStoriesByTitle = async (query) => {
   const stories = await Story
       .find({'title' : new RegExp(query, 'gi')})
-      .populate('editor');
-
+      .populate({path: 'editor', select: 'name avatar'})
+      .select('editor title tagLine');
   if (stories) {
     return stories;
   }
-
 };
 
 
 Story.getStoriesByEditor = async (id) => {
   const stories = await Story
       .find({'editor' : new ObjectId(id)})
-      .populate('editor');
-
+      .populate({path: 'editor', select: 'name avatar'})
+      .select('editor title tagLine');
   if (stories) {
     return stories;
   }
-
 };
 
 
-Story.viewStory = (params) => {
-  return Story.findOne({_id : params.id});
+Story.findStory = (storyId) => {
+  return Story.findOne({_id : storyId})
+              .populate({path: 'editor', select: 'name avatar'})
 };
 
 

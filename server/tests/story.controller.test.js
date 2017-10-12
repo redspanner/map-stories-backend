@@ -6,27 +6,19 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 chai.should();
 
-const mockStoryModel = {};
 const proxyquire = require('proxyquire');
+const mockStoryModel = {};
 
 // creates mock model functions to replace original model functions in controller
 const StoriesController = proxyquire('../controller/story.controller',
   { '../model/story.model' : mockStoryModel}
 );
 
+const mocks = require('./mocks');
+
 describe('Stories Collection', () => {
   // it('should return editor, tagline and title for each story', async () => {
-  // //Would prefer to do this model instead of use serializer
-  //   const mockStories = [{
-  //     _id: 'mockID',
-  //     __v: '1.3.5',
-  //     editor: {
-  //       _id: 'BANANAS',
-  //       name: 'arol'
-  //     },
-  //     tagline: 'Lorem ipsum.',
-  //     title: 'How to Lorem Ipsum'
-  //   }];
+  // //Need to rewrite to put logic in controller instead of model
   //   mockStoryModel.getAllStories = sinon.stub().returns(mockStories);
   //   const ctx = {};
   //   await StoriesController.getAllStories(ctx);
@@ -52,24 +44,19 @@ describe('Stories Collection', () => {
   });
 
   it('should return only records that match any query terms provided', async () => {
-    const mockStories = [
-      {
-        'title': 'Black Books',
-        'tagLine': 'Bernard Black is a Queen',
-        'editor': '59dca04815c386136f21f4b5'
-      },
-      {
-        'title': 'West World',
-        'tagLine': 'Dolores Wild West',
-        'editor': '59dca04815c386136f21f4b5'
-      },
-    ];
+    //rewrite function so that the controller.getAllStories does the regexp
+    const mockStories = mocks.mockStories;
     mockStoryModel.getAllStories = sinon.stub().returns(mockStories);
     const ctx = {
-      params: {page: 1},
+      request: {
+        query: 'hawk',
+      },
       body: null,
     };
-
+    // await getQuery(ctx);
+    // ctx.body[0].editor.name.should.be('Stephen Hawking');
+    // ctx.body[0].title.should.be('Black Hawk Down');
+    // ctx.body.should.be.ofLength(2);
   });
 
   it('should return empty array if no records match the query');
@@ -79,30 +66,32 @@ describe('Stories Collection', () => {
 
 
 describe('Story', () => {
-  //
-  // const ctx = {request: {body:'foo'}};
-  //
-  // it ('createStory should call model.createStory with the ctx.request.body', async () => {
-  //   const foo = ctx.request.body;
-  //   //mock the model's createStory and spy on it
-  //   mockStory.createStory = async (foo) => {
-  //     return;
-  //   };
-  //   const spy = sinon.spy(mockStory, 'createStory');
-  //   const res = await Story.createStory(ctx);
-  //   spy.should.have.been.calledWith('foo');
-  // });
-  //
-  // it ('createStory should catch errors from model', async () => {
-  //   const foo = ctx.request.body;
-  //   mockStory.createStory = (foo) => {
-  //     throw new Error('error');
-  //   };
-  //   Story.createStory().should.be.rejected;
-  // });
+  it('should not be created if mandatory data not provided', async () => {
+    const ctx = {
+      request: {
+        body: {
+          title: '',
+          tagLine: '',
+          map: '',
+          duration: '',
+        },
+      }
+    };
+    await StoriesController.createStory(ctx)
+    ctx.body.message.should.equal('Your story needs a valid title!')
+  });
 
-  it('should not be created if mandatory data not provided');
-  it('should not publish a story if no events in it');
+  it('should not publish a story if no events in it', async () => {
+    const ctx = {
+      request: {
+
+      },
+      params: {
+        id: 123,
+      }
+    }
+  });
+
   it('should remove story from DB when deleted');
   it('viewStory should return a single story');
   it('should update story when edited');

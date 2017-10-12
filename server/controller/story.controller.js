@@ -18,9 +18,8 @@ const getAllStories = async (ctx, next) => {
 };
 
 const getQuery = async (ctx, next) => {
-  const searchResults = []
+  const searchResults = [];
   const query = ctx.request.query.q;
-
   const searchedEditors = await Editor.searchEditors(query);
   const editorIds = searchedEditors.map(editor => editor['_id']);
   for (let i = 0; i < editorIds.length; i++) {
@@ -40,46 +39,60 @@ const getQuery = async (ctx, next) => {
   ctx.body = searchResults;
 };
 
-const viewStory = async (ctx, next) => {
-  try {
-    const story = await Story.viewStory(ctx.params);
-    ctx.body = story;
-  } catch (error) {
-    console.log(error);
-  }
+const findStory = async (ctx, next) => {
+  const storyId = ctx.params.id;
+  const story = await Story.findStory(storyId);
+  ctx.body = story;
 };
 
 const createStory = async (ctx, next) => {
-  try {
-    const storyData = {
-      editor: await Editor.findOne({'name':'Ian Banks'}),
-      title: ctx.request.body.title,
-      tagLine: ctx.request.body.tagLine,
-      map: ctx.request.body.map,
-      duration: ctx.request.body.duration,
-      // events: await Events.createEvent(),
-    };
+  const storyData = {
+    editor: await Editor.findOne({'name':'Charlie Stross'}),
+    title: ctx.request.body.title,
+    tagLine: ctx.request.body.tagLine,
+    map: ctx.request.body.map,
+    duration: ctx.request.body.duration,
+    // events: await Events.createEvent(),
+  };
+  if (storyData.title.length > 1) {
     const createdStory = await Story.createStory(storyData);
     ctx.status = 201;
     ctx.body = createdStory;
-  } catch (error) {
-    ctx.throw('Could not create story!');
+  } else {
+    ctx.body = {'message': 'Your story needs a valid title!'};
+    done();
   }
 };
 
-const editStoryMeta = async (ctx, next) => {
-  try {
-    const editedStory = await Story.editStoryMeta(ctx.request.body, ctx.params);
-    ctx.status = 200;
-  } catch (error) {
-    ctx.throw(401, 'Could not edit story!');
+const editStory = async (ctx, next) => {
+  const edits = ctx.request.body;
+  const storyId = ctx.params.id;
+  const updatedProps = {};
+
+  if (edits.published) {
+    const storyToPublish = await Story.findStory(storyId);
+    if (storyToPublish.events.length < 1) {
+      ctx.body = {'message' : 'A Story cannot be published without events!'};
+      return;
+    }
   }
+
+  if (edits.title) updatedProps.title = edits.title;
+  if (edits.map) updatedProps.map = edits.map;
+  if (edits.tagLine) updatedProps.tagLine = edits.tagLine;
+  if (edits.duration) updatedProps.duration = edits.duration;
+  if (edits.likes) updatedProps.likes = edits.likes;
+
+  await Story.editStory(storyId, updatedProps);
+  const updatedStory = await Story.findStory(storyId);
+
+  ctx.body = updatedStory;
 };
 
 module.exports = {
   getAllStories,
   getQuery,
-  viewStory,
+  findStory,
   createStory,
-  editStoryMeta,
+  editStory,
 };
