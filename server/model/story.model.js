@@ -52,5 +52,8 @@ Story.editStory = (storyId, updatedProps) => {
     .findOneAndUpdate({_id : storyId}, {$set: updatedProps});
 };
 
+Story.deleteStory = (storyId) => {
+  return Story.findByIdAndRemove(storyId);
+};
 
 module.exports = Story;
