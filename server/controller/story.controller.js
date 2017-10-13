@@ -55,8 +55,7 @@ const createStory = async (ctx, next) => {
     ctx.status = 201;
     ctx.body = createdStory;
   } else {
-    ctx.body = {'message': 'Your story needs a valid title!'};
-    return ctx.body; //possible to pass test w/o returning anything?
+    ctx.throw(400,'Your story needs a valid title!');
   }
 };
 
@@ -68,7 +67,7 @@ const editStory = async (ctx, next) => {
   if (edits.published) {
     const storyToPublish = await Story.findStory(storyId);
     if (storyToPublish.events.length < 1) {
-      ctx.body = {'message': 'A Story cannot be published without events!'};
+      ctx.throw(400,'A Story cannot be published without events!');
       return ctx.body;
     }
   }
@@ -86,8 +85,10 @@ const editStory = async (ctx, next) => {
 };
 
 const deleteStory = async (ctx, next) => {
-  // const storyId = ctx.params.id;
-  // await Story.delete
+  const storyId = ctx.params.id;
+  await Story.findByIdAndRemove(storyId, () => {
+    ctx.body = {'message': 'Story successfully deleted.'};
+  });
 };
 
 module.exports = {

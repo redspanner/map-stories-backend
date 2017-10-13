@@ -29,10 +29,6 @@ const storySchema = new Schema({
 const Story = mongoose.model('Story', storySchema);
 
 
-Story.editStory = (storyId, updatedProps) => {
-  return Story
-      .findOneAndUpdate({_id : storyId}, {$set: updatedProps});
-};
 
 Story.getAllStories = () => {
   return Story
@@ -59,12 +55,18 @@ Story.getStoriesByEditor = (id) => {
 
 Story.findStory = (storyId) => {
   return Story.findOne({_id : storyId})
-              .populate({path: 'editor', select: 'name avatar'})
+              .populate({path: 'editor', select: 'name avatar'});
 };
 
 
 Story.createStory = (newStory) => {
-  return newStory.save()
+  return newStory.save();
 };
+
+Story.editStory = (storyId, updatedProps) => {
+  return Story
+    .findOneAndUpdate({_id : storyId}, {$set: updatedProps});
+};
+
 
 module.exports = Story;

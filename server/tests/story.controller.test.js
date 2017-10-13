@@ -6,6 +6,8 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 chai.should();
 
+require('../db')('mapstory-backend-test');
+
 const proxyquire = require('proxyquire');
 const mockStoryModel = {};
 
@@ -74,14 +76,10 @@ describe('Story', () => {
         },
       }
     };
-    const mockError = {'message': 'Your story needs a valid title!'};
-    StoriesController.createStory(ctx).should.eventually.equal(mockError);
-    // await StoriesController.createStory(ctx);
-    // ctx.body.should.eventually.equal(mockError);
+    StoriesController.createStory(ctx).should.be.rejected;
   });
 
   it('should not publish a story if no events in it', async () => {
-
     const ctx = {
       request: {
         body: {
@@ -92,11 +90,9 @@ describe('Story', () => {
         _id: '123',
       }
     };
-
     const mockStory = mocks.mockStory;
-    mockStoryModel.getAllStories = sinon.stub().returns(mockStory);
-    const mockError = {'message': 'A Story cannot be published without events!'};
-    StoriesController.editStory(ctx).should.eventually.equal(mockError);
+    mockStoryModel.findStory = sinon.stub().returns(mockStory);
+    StoriesController.editStory(ctx).should.be.rejected;
   });
 
   it('should remove story from DB when deleted');
