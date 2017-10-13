@@ -37,22 +37,6 @@ Story.getAllStories = () => {
       .select('editor title tagLine'); //id is returned by default
 };
 
-Story.getStoriesByTitle = (query) => {
-  return Story
-    .find({'title' : new RegExp(query, 'gi')})
-    .populate({path: 'editor', select: 'name avatar'})
-    .select('editor title tagLine');
-};
-
-
-Story.getStoriesByEditor = (id) => {
-  return Story
-    .find({'editor' : new ObjectId(id)})
-    .populate({path: 'editor', select: 'name avatar'})
-    .select('editor title tagLine');
-};
-
-
 Story.findStory = (storyId) => {
   return Story.findOne({_id : storyId})
               .populate({path: 'editor', select: 'name avatar'});
