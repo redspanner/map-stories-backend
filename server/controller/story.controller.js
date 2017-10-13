@@ -9,29 +9,30 @@ const getAllStories = async (ctx, next) => {
     const pagination = page - 1;
     const limit = 20;
     const results = stories.slice(pagination*limit, pagination*limit + limit);
-    ctx.body = results;
+    if (results.length > 0) {
+      ctx.body = results;
+    } else {
+      ctx.throw(400, 'Page does not exist!')
+    }
   }
 };
 
 const getQuery = async (ctx, next) => {
   const searchResults = [];
   const query = ctx.request.query.q;
-  const searchedEditors = await Editor.searchEditors(query);
-  const editorIds = searchedEditors.map(editor => editor['_id']);
-  for (let i = 0; i < editorIds.length; i++) {
-    const storiesByEditor = await Story.getStoriesByEditor(editorIds[i]);
-    if (storiesByEditor.length > 0) {
-      for (let j = 0; j < storiesByEditor.length; j++) {
-        searchResults.push(storiesByEditor[j]);
-      }
+  const allStories = await Story.getAllStories();
+  const searchTerm = new RegExp(query, 'gi');
+  for (var i = 0; i < allStories.length; i++) {
+    if (allStories[i].title.match(searchTerm)) {
+      searchResults.push(allStories[i]);
     }
   }
-  const storiesByTitle = await Story.getStoriesByTitle(query);
-  for (let k = 0; k < storiesByTitle.length; k++) {
-    searchResults.push(storiesByTitle[k]);
+  for (var j = 0; j < allStories.length; j++) {
+    if (allStories[j].editor.name.match(searchTerm)) {
+      searchResults.push(allStories[j]);
+    }
   }
   ctx.body = searchResults;
-  return searchResults;
 };
 
 const findStory = async (ctx, next) => {
