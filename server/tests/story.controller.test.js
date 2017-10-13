@@ -88,7 +88,7 @@ describe('Story', () => {
         },
       }
     };
-    StoriesController.createStory(ctx).should.be.rejected;
+    StoriesController.createStory(ctx).should.be.rejectedWith(400);
   });
 
   it('should not publish a story if no events in it', async () => {
@@ -104,20 +104,35 @@ describe('Story', () => {
     };
     const mockStory = mocks.mockStory;
     mockStoryModel.findStory = sinon.stub().returns(mockStory);
-    StoriesController.editStory(ctx).should.be.rejected;
+    StoriesController.editStory(ctx).should.be.rejectedWith(400);
   });
 
-  it('should remove story from DB when deleted');
+  it('should remove story from DB when deleted', async() => {
+    const ctx = {
+      request: {
+        body: {
+          title: 'Waking Life',
+          tagLine: 'A dream guide',
+          map: 'http://awz.com/123.jpg',
+          duration: '00:50',
+        },
+      },
+    };
+    const mockStoryData = {
+      editor: 'Emma Stone',
+      title: ctx.request.body.title,
+      tagLine: ctx.request.body.tagLine,
+      map: ctx.request.body.map,
+      duration: ctx.request.body.duration,
+      events: [],
+    };
+    await StoriesController.createStory(ctx);
+  });
+
   it('viewStory should return a single story');
   it('should update story when edited');
   it('should create a new event');
   it('if events are deleted the story events array should reflect this');
-});
-
-describe('Editor', () => {
-  it('should be able to log in with Facebook');
-  it('should pull image, name and email from Facebook');
-  // it('should be able to delete profile');
 });
 
 
