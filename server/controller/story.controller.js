@@ -43,7 +43,7 @@ const findStory = async (ctx, next) => {
 
 const createStory = async (ctx, next) => {
   const storyData = {
-    editor: await Editor.findOne({'name':'Charlie Stross'}),
+    editor: await Editor.findOne({'name':'Stephen Fry'}),
     title: ctx.request.body.title,
     tagLine: ctx.request.body.tagLine,
     map: ctx.request.body.map,
@@ -87,9 +87,10 @@ const editStory = async (ctx, next) => {
 
 const deleteStory = async (ctx, next) => {
   const storyId = ctx.params.id;
-  await Story.findByIdAndRemove(storyId, () => {
-    ctx.body = {'message': 'Story successfully deleted.'};
-  });
+  const story = await Story.findStory(storyId);
+  const storyTitle = story.title;
+  await Story.deleteStory(storyId);
+  ctx.body = {'message': `Story "${storyTitle}" successfully deleted`};
 };
 
 module.exports = {
