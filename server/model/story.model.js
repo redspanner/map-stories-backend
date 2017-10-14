@@ -23,6 +23,7 @@ const storySchema = new Schema({
   map: String,
   tagLine: String,
   duration: String,
+  published: Boolean,
   events:[{ type: Schema.Types.ObjectId, ref: 'Event' }],
 });
 
@@ -34,7 +35,7 @@ Story.getAllStories = () => {
   return Story
       .find()
       .populate({path: 'editor', select: 'name avatar'})
-      .select('editor title tagLine'); //id is returned by default
+      .select('editor title tagLine published likes'); //id is returned by default
 };
 
 Story.findStory = (storyId) => {

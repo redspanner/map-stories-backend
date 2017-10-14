@@ -13,7 +13,7 @@ const getAllStories = async (ctx, next) => {
     const limit = 20;
     const results = stories.slice(pagination*limit, pagination*limit + limit);
     if (results.length > 0) {
-      ctx.body = results;
+      ctx.body = results.filter(story => story.published);
     } else {
       ctx.throw(400, 'Page does not exist!')
     }
@@ -51,6 +51,8 @@ const createStory = async (ctx, next) => {
     tagLine: ctx.request.body.tagLine,
     map: ctx.request.body.map,
     duration: ctx.request.body.duration,
+    published: false,
+    likes: 0,
     events: [],
   };
   if (storyData.title.length > 1) {
@@ -68,19 +70,20 @@ const editStory = async (ctx, next) => {
   const storyId = ctx.params.id;
   const updatedProps = {};
 
-  if (edits.published) {
-    const storyToPublish = await Story.findStory(storyId);
-    if (storyToPublish.events.length < 1) {
-      // ctx.throw(400,'A Story cannot be published without events!');
-      ctx.body = {"error": "error"}
-      return ctx.body;
-    }
-  }
+  // if (edits.published) {
+  //   const storyToPublish = await Story.findStory(storyId);
+  //   if (storyToPublish.events.length < 1) {
+  //     // ctx.throw(400,'A Story cannot be published without events!');
+  //     ctx.body = {'error': 'error'};
+  //     return ctx.body;
+  //   }
+  // }
 
   if (edits.title) updatedProps.title = edits.title;
   if (edits.map) updatedProps.map = edits.map;
   if (edits.tagLine) updatedProps.tagLine = edits.tagLine;
   if (edits.duration) updatedProps.duration = edits.duration;
+  if (edits.published) updatedProps.published = edits.published;
   if (edits.likes) updatedProps.likes = edits.likes;
 
   await Story.editStory(storyId, updatedProps);
