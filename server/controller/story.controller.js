@@ -44,9 +44,10 @@ const findStory = async (ctx, next) => {
 };
 
 const createStory = async (ctx, next) => {
-  // const user = ctx.body.user ??
+  console.log(ctx.request.body);
+  const editorEmail = ctx.request.body.email;
   const storyData = {
-    editor: await Editor.findOne({'name':'Stephen Fry'}),
+    editor: await Editor.findOne({'email': editorEmail}),
     title: ctx.request.body.title,
     tagLine: ctx.request.body.tagLine,
     map: ctx.request.body.map,
