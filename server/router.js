@@ -15,4 +15,9 @@ router.post('/stories', storyController.createStory);
 router.put('/stories/story/:id', storyController.editStory);
 router.delete('/stories/story/:id', storyController.deleteStory);
 
+//event actions
+router.post('/stories/:id/event', eventsController.addEvent);
+router.put('/stories/:id/:eventId', eventsController.editEvent);
+router.delete('/stories/:id/:eventId', eventsController.deleteEvent);
+
 module.exports = router;
