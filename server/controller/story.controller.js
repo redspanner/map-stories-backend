@@ -3,6 +3,9 @@ const Story = require('../model/story.model');
 const Editor = require('../model/editor.model');
 
 const getAllStories = async (ctx, next) => {
+  console.log(ctx);
+
+  //filter for published stories
   const page = parseInt(ctx.params.page);
   if (ctx.params.page && typeof page === 'number') {
     const stories = await Story.getAllStories();
@@ -68,7 +71,8 @@ const editStory = async (ctx, next) => {
   if (edits.published) {
     const storyToPublish = await Story.findStory(storyId);
     if (storyToPublish.events.length < 1) {
-      ctx.throw(400,'A Story cannot be published without events!');
+      // ctx.throw(400,'A Story cannot be published without events!');
+      ctx.body = {"error": "error"}
       return ctx.body;
     }
   }

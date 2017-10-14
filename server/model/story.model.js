@@ -23,7 +23,7 @@ const storySchema = new Schema({
   map: String,
   tagLine: String,
   duration: String,
-  events:[eventSchema],//[{ type: Schema.Types.ObjectId, ref: 'Event' }]
+  events:[{ type: Schema.Types.ObjectId, ref: 'Event' }],
 });
 
 const Story = mongoose.model('Story', storySchema);
@@ -39,7 +39,8 @@ Story.getAllStories = () => {
 
 Story.findStory = (storyId) => {
   return Story.findOne({_id : storyId})
-              .populate({path: 'editor', select: 'name avatar'});
+              .populate({path: 'editor', select: 'name avatar'})
+              .populate('events');
 };
 
 

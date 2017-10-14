@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const Event = require('../model/event.model');
 const Story = require('../model/story.model');
-const Attachment = require('../model/event.model');
+const Event = require('../model/event.model').Event;
+const Attachment = require('../model/event.model').Attachment;
 
 require('../db')('mapstory-backend-test');
 
@@ -10,15 +10,40 @@ const addEvent = async (ctx, next) => {
   try {
     if (ctx.request.body.title) {
       const target = await Story.findOne({_id: ctx.params.id});
+      if (ctx.request.body.attachments.length !== 0) {
+        var attachmentsArr = ctx.request.body.attachments.slice();
+        attachmentsArr = await Promise.all(attachmentsArr.map(async attachment => {
+          let attachmentData;
+          if (attachment.type === 'Link') {
+            attachmentData = {
+              type: attachment.type,
+              url: attachment.url,
+              urlImg: attachment.urlImg,
+              title: attachment.title,
+            };
+          } else if (attachment.type === 'Text') {
+            attachmentData = {
+              type: attachment.type,
+              text: attachment.text,
+            };
+          } else {
+            attachmentData = {
+              type: attachment.type,
+              url: attachment.url,
+            };
+          }
+          return await Attachment.create(attachmentData);
+        }));
+      }
       const eventData = {
         title: ctx.request.body.title,
         startTime: ctx.request.body.startTime,
-        MapLocation: ctx.request.body.MapLocation,
-        DateAndTime: ctx.request.body.DateAndTime,
-        attachments: ctx.request.body.attachments
+        mapLocation: ctx.request.body.mapLocation,
+        dateAndTime: ctx.request.body.dateAndTime,
+        attachments: attachmentsArr,
       };
       const createdEvent = await Event.create(eventData);
-      target.events.push(createdEvent._id);
+      target.events.push(createdEvent);
       target.save();
       ctx.status = 201;
       ctx.body = createdEvent;
@@ -32,20 +57,20 @@ const addEvent = async (ctx, next) => {
   }
 };
 
+// 59e1fa0122be5271a4252ba4
 
 //Updates existing events
 const editEvent = async (ctx, next) => {
   try {
-    const targetStory = await Story.findOne({"_id": ctx.params.id})
-                                   .populate('events');
+    const targetStory = await Story.findOne({'_id': ctx.params.id}).populate('events');
     const targetEvent = targetStory.events;
     for (var i = 0; i < targetEvent.length; i++) {
       if (targetEvent[i]['_id'] == ctx.params.eventId) {
-        targetEvent[i]['title'] = ctx.request.body.title,
-        targetEvent[i]['startTime'] = ctx.request.body.startTime,
-        targetEvent[i]['DateAndTime'] = ctx.request.body.DateAndTime,
-        targetEvent[i]['MapLocation'] = ctx.request.body.MapLocation,
-        targetEvent[i]['attacment'] = ctx.request.body.attachment
+        targetEvent[i]['title'] = ctx.request.body.title;
+        targetEvent[i]['startTime'] = ctx.request.body.startTime;
+        targetEvent[i]['dateAndTime'] = ctx.request.body.dateAndTime;
+        targetEvent[i]['mapLocation'] = ctx.request.body.mapLocation;
+        targetEvent[i]['attachments'] = ctx.request.body.attachment;
       }
     }
     targetStory.save();
@@ -55,11 +80,10 @@ const editEvent = async (ctx, next) => {
   }
 };
 
-
 //Deletes existing events
 const deleteEvent = async (ctx, next) => {
   try {
-    const targetStory = await Story.findOne({"_id": ctx.params.id})
+    const targetStory = await Story.findOne({'_id': ctx.params.id})
                                    .populate('events');
     const targetEvent = targetStory.events;
     for (var i = 0; i < targetEvent.length; i++) {
@@ -71,7 +95,6 @@ const deleteEvent = async (ctx, next) => {
       }
     }
     targetStory.save();
-
     ctx.status = 200;
   } catch (error) {
     throw (401, 'Could not edit event!');

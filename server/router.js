@@ -2,6 +2,7 @@ const Router = require('koa-router');
 
 const storyController = require('./controller/story.controller');
 const editorController = require('./controller/editor.controller');
+const eventsController = require('./controller/events.controller');
 const router = new Router();
 
 //user actions
@@ -16,8 +17,8 @@ router.put('/stories/story/:id', storyController.editStory);
 router.delete('/stories/story/:id', storyController.deleteStory);
 
 //event actions
-router.post('/stories/:id/event', eventsController.addEvent);
-router.put('/stories/:id/:eventId', eventsController.editEvent);
-router.delete('/stories/:id/:eventId', eventsController.deleteEvent);
+router.post('/stories/story/:id/event', eventsController.addEvent);
+router.put('/stories/story/:id/event/:eventId', eventsController.editEvent);
+router.delete('/stories/story/:id/event/:eventId', eventsController.deleteEvent);
 
 module.exports = router;

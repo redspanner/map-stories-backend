@@ -2,39 +2,29 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Story = require('../model/story.model');
 
-
-const attachmentSchema = new Schema(
-  [
-    {
-      type: String,
-      title: String,
-      description: String,
-      text: String,
-      link: String,
-    },
-    {
-      type: String,
-      title: String,
-      description: String,
-      text: String,
-      link: String,
-    },
-  ]);
-
+const attachmentSchema = new Schema({
+  type: String,
+  url: String,
+  urlImg: String,
+  title: String,
+  text: String,
+});
 
 const eventSchema = new Schema({
   title: String,
-  startTime: Number,
+  startTime: String,
   dateAndTime: Date,
   mapLocation: String,
   attachments: [attachmentSchema],
 });
 
-
 const Event = mongoose.model('Event', eventSchema);
+const Attachment = mongoose.model('Attachment', attachmentSchema);
 
-
-module.exports = Event;
+module.exports = {
+  Event,
+  Attachment,
+};
 
 // module.exports = Event;
 
