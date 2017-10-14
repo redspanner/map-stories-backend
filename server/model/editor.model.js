@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const editorSchema = new Schema({
   name: String,
-  avatar: String,
+  email: String,
 });
 
 const Editor = mongoose.model('Editor', editorSchema);
@@ -12,7 +12,7 @@ const Editor = mongoose.model('Editor', editorSchema);
 Editor.createEditor = async (editorData) => {
   const newEditor = new Editor ({
     name: editorData.name,
-    avatar: editorData.avatar,
+    email: editorData.email,
   });
   await newEditor.save();
 };

@@ -3,7 +3,6 @@ const Story = require('../model/story.model');
 const Editor = require('../model/editor.model');
 
 const getAllStories = async (ctx, next) => {
-  console.log(ctx);
 
   //filter for published stories
   const page = parseInt(ctx.params.page);
@@ -45,6 +44,7 @@ const findStory = async (ctx, next) => {
 };
 
 const createStory = async (ctx, next) => {
+  // const user = ctx.body.user ??
   const storyData = {
     editor: await Editor.findOne({'name':'Stephen Fry'}),
     title: ctx.request.body.title,

@@ -12,6 +12,7 @@ router.get('/stories/story/:id', storyController.findStory);
 
 //editor actions
 router.post('/sign-up', editorController.createEditor);
+
 router.post('/stories', storyController.createStory);
 router.put('/stories/story/:id', storyController.editStory);
 router.delete('/stories/story/:id', storyController.deleteStory);
