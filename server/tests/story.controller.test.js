@@ -12,7 +12,7 @@ const proxyquire = require('proxyquire');
 const mockStoryModel = {};
 
 // creates mock model functions to replace original model functions in controller
-const StoriesController = proxyquire('../controller/story.controller',
+const StoriesController = proxyquire('../controllers/stories.controller',
   { '../model/story.model' : mockStoryModel}
 );
 

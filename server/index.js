@@ -24,6 +24,12 @@ app
       }
     }
   })
+  .use(async (ctx, next) => {
+    let token = ctx.headers.authorization;
+    if (!token) return await next();
+    else ctx.token = token;
+    await next();
+  })
   .use(bodyParser())
   .use(router.routes())
   .use(router.allowedMethods());

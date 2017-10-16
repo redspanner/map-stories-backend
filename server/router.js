@@ -1,23 +1,24 @@
 const Router = require('koa-router');
 
-const storyController = require('./controller/story.controller');
-const editorController = require('./controller/editor.controller');
-const eventsController = require('./controller/events.controller');
+const storiesController = require('./controllers/stories.controller');
+const editorController = require('./controllers/editor.controller');
+const eventsController = require('./controllers/events.controller');
 const router = new Router();
 
 //user actions
-router.get('/stories/', storyController.getQuery);
-router.get('/stories/:page', storyController.getAllStories);
-router.get('/stories/story/:id', storyController.findStory);
+router.get('/stories/', storiesController.getQuery);
+router.get('/stories/:page', storiesController.getAllStories);
+router.get('/stories/story/:id', storiesController.findStory);
 
 //editor actions
 router.post('/sign-up', editorController.createEditor);
+router.put('/sign-out', editorController.signoutEditor);
 
-router.get('/me/stories');
+router.get('/me/stories/:id', editorController.getEditorStories);
 
-router.post('/stories', storyController.createStory);
-router.put('/stories/story/:id', storyController.editStory);
-router.delete('/stories/story/:id', storyController.deleteStory);
+router.post('/stories', storiesController.createStory);
+router.put('/stories/story/:id', storiesController.editStory);
+router.delete('/stories/story/:id', storiesController.deleteStory);
 
 //event actions
 router.post('/stories/story/:id/event', eventsController.addEvent);

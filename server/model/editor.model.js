@@ -5,6 +5,8 @@ const Schema = mongoose.Schema;
 const editorSchema = new Schema({
   name: String,
   email: String,
+  token: String,
+  picture: String,
 });
 
 const Editor = mongoose.model('Editor', editorSchema);
@@ -13,8 +15,10 @@ Editor.createEditor = async (editorData) => {
   const newEditor = new Editor ({
     name: editorData.name,
     email: editorData.email,
+    token: editorData.token,
+    picture: editorData.picture,
   });
-  await newEditor.save();
+  return await newEditor.save();
 };
 
 Editor.searchEditors = async (query) => {
