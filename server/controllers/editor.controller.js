@@ -3,7 +3,8 @@ const Story = require('../model/story.model');
 const Editor = require('../model/editor.model');
 
 const signUpEditor = async (ctx, next) => {
-  const token = ctx.token.split(' ')[1];
+  let token = ctx.headers.authorization;
+  token = token.split(' ')[1];
   const editorData = {
     name: ctx.request.body.name,
     email: ctx.request.body.email,
