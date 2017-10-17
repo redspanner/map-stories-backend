@@ -32,11 +32,10 @@ const createStory = async (ctx, next) => {
   const storyData = {
     editor: ctx.user,
     title: ctx.request.body.title,
-    tagLine: ctx.request.body.tagLine,
+    tagLine: ctx.request.body.tagline,
     map: ctx.request.body.map,
     duration: ctx.request.body.duration,
     published: false,
-    likes: 0,
     events: [],
   };
   if (storyData.title.length > 1) {
