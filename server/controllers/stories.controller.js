@@ -78,13 +78,12 @@ const deleteStory = async (ctx, next) => {
   const storyId = ctx.params.id;
   const story = await Story.findOne({ _id: storyId, editor: ctx.user._id });
   if (!story) return ctx.throw(404);
-  await Story.deleteStory(storyId);
-  ctx.status = 204;
+  const deletedStory = await Story.deleteStory(storyId);
+  ctx.body = deletedStory;
 };
 
 module.exports = {
   getAllStories,
-  // getQuery,
   findStory,
   createStory,
   editStory,
