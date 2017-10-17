@@ -5,32 +5,40 @@ const editorController = require('./controllers/editor.controller');
 const eventsController = require('./controllers/events.controller');
 const router = new Router();
 
+const Editor = require('./model/editor.model');
+
 const authMiddleware = async (ctx, next) => {
   let token = ctx.headers.authorization;
-  if (!token) return await next();
-  else ctx.token = token;
+  if (token) token = token.split(' ')[1];
+  if (!token) {
+    ctx.status = 401;
+    return;
+  }
+  
+  ctx.user = await Editor.findOne({ token });
+  if (!ctx.user) {
+    ctx.status = 401;
+    return;
+  }
   await next();
 };
 
 //user actions
-// router.get('/stories/', storiesController.getQuery);
-// router.get('/stories/:page', storiesController.getAllStories);
 router.get('/stories', storiesController.getAllStories);
-router.get('/stories/:page', storiesController.getAllStories);
-router.get('/stories/story/:id', storiesController.findStory);
+router.get('/stories/:id', storiesController.findStory);
 
 //editor actions
 router.post('/sign-up', editorController.signUpEditor);
 
-router.get('/me/stories/:id', editorController.getEditorStories);
+router.get('/me/stories', authMiddleware, editorController.getEditorStories);
 
 router.post('/stories', authMiddleware, storiesController.createStory);
-router.put('/stories/story/:id', storiesController.editStory);
-router.delete('/stories/story/:id', storiesController.deleteStory);
+router.put('/stories/:id', authMiddleware, storiesController.editStory);
+router.delete('/stories/:id', authMiddleware, storiesController.deleteStory);
 
 //event actions
-router.post('/stories/story/:id/event', eventsController.addEvent);
-router.put('/stories/story/:id/event/:eventId', eventsController.editEvent);
-router.delete('/stories/story/:id/event/:eventId', eventsController.deleteEvent);
+router.post('/stories/:id/event', authMiddleware, eventsController.addEvent);
+router.put('/stories/:id/event/:eventId', authMiddleware, eventsController.editEvent);
+router.delete('/stories/:id/event/:eventId', authMiddleware, eventsController.deleteEvent);
 
 module.exports = router;

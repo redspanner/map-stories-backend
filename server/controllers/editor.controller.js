@@ -25,12 +25,9 @@ const signUpEditor = async (ctx, next) => {
 
 
 const getEditorStories = async (ctx, next) => {
-  const editor = 'editor._id';
-  const editorStories = await Story.find({editor : ctx.params.id});
+  const editorStories = await Story.find({editor: ctx.user._id}).populate('editor');
   ctx.body = editorStories;
-  ctx.status = 200;
 };
-
 
 module.exports = {
   signUpEditor,

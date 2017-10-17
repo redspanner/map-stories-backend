@@ -10,13 +10,6 @@ const attachmentsSchema = new Schema({
   audio: String,
 });
 
-const eventSchema = new Schema({
-  id: String,
-  title: String,
-  startTime: String,
-  attachments: [attachmentsSchema]
-});
-
 const storySchema = new Schema({
   editor: { type: Schema.Types.ObjectId, ref: 'Editor' },
   title: String,
@@ -30,16 +23,15 @@ const storySchema = new Schema({
 const Story = mongoose.model('Story', storySchema);
 
 
-Story.getAllStories = (page) => {
+Story.getAllStories = (searchTerm, page) => {
   return Story
-      .find()
+      .find(searchTerm)
       .skip((page-1)*10)
       .limit(10)
-      // .populate({path: 'editor', select: 'name avatar'})
+      .populate({path: 'editor', select: 'name avatar'})
       .select('editor title tagLine published likes'); //id is returned by default
 };
 
-// Story.getQuery = ()
 
 Story.findStory = (storyId) => {
   return Story.findOne({_id : storyId})

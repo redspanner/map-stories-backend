@@ -11,11 +11,11 @@ require('./db')('mapstory-backend');
 
 const port = process.env.PORT
 
-const corsOptions = {origin: 'http://localhost:4000'};
+const corsOptions = {origin: `http://localhost:${port}`};
 
 app
   .use(cors(corsOptions))
-  .use(async (cxt, next) => {
+  .use(async (ctx, next) => {
     try {
       await next();
     } catch (e) {

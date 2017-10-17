@@ -39,14 +39,17 @@ const Editor = require('../model/editor.model');
 const getAllStories = async (ctx, next) => {
   try {
     const page = parseInt(ctx.request.query.page);
-    const q = ctx.request.query.q
-    const stories = await Story.getAllStories(page);
+    const q = ctx.request.query.q;
     const searchTerm = {};
-    searchTerm.title = q;
-
+    const regexp = new RegExp(q , 'gi')
+    if (q) {
+      searchTerm.title = regexp;
+    }
+    const stories = await Story.getAllStories(searchTerm, page);
     ctx.body = stories;
+
   } catch (e) {
-    ctx.throw(400, 'Page does not exist!');
+    ctx.throw(400, 'No results found.');
   }
 };
 
@@ -57,68 +60,58 @@ const findStory = async (ctx, next) => {
 };
 
 const createStory = async (ctx, next) => {
-  if (ctx.token) {
-    const token = ctx.token.split(' ')[1];
-    const editorEmail = ctx.request.body.email;
-    const updatedEditor = await Editor.findOne({email : editorEmail});
-    if (token === updatedEditor.token) {
-      const storyData = {
-        editor: await Editor.findOne({'email': editorEmail}),
-        title: ctx.request.body.title,
-        tagLine: ctx.request.body.tagLine,
-        map: ctx.request.body.map,
-        duration: ctx.request.body.duration,
-        published: false,
-        likes: 0,
-        events: [],
-      };
-      if (storyData.title.length > 1) {
-        const newStory = new Story(storyData);
-        const createdStory = await Story.createStory(newStory);
-        ctx.status = 201;
-        ctx.body = createdStory;
-      } else {
-        ctx.throw(400,'Your story needs a valid title!');
-      }
-    }
+  const storyData = {
+    editor: ctx.user,
+    title: ctx.request.body.title,
+    tagLine: ctx.request.body.tagLine,
+    map: ctx.request.body.map,
+    duration: ctx.request.body.duration,
+    published: false,
+    likes: 0,
+    events: [],
+  };
+  if (storyData.title.length > 1) {
+    const newStory = new Story(storyData);
+    const createdStory = await Story.createStory(newStory);
+    ctx.status = 201;
+    ctx.body = createdStory;
+  } else {
+    ctx.throw(400,'Your story needs a valid title!');
   }
-  // else send a 401 (if no token present)
 };
 
 const editStory = async (ctx, next) => {
-  const edits = ctx.request.body;
+  const data = ctx.request.body;
   const storyId = ctx.params.id;
   const updatedProps = {};
+  const story = await Story.findOne({_id: storyId, editor: ctx.user._id});
 
-  if (edits.published) {
-    const storyToPublish = await Story.findStory(storyId);
-    if (storyToPublish.events.length < 1) {
+  if (!story) {
+    ctx.throw(404);
+  }
+
+  if (data.published) {
+    if (story.events.length < 1) {
       ctx.throw(400, 'A Story cannot be published without events!');
       return ctx.body;
     }
   }
 
-  if (edits.title) updatedProps.title = edits.title;
-  if (edits.map) updatedProps.map = edits.map;
-  if (edits.tagLine) updatedProps.tagLine = edits.tagLine;
-  if (edits.duration) updatedProps.duration = edits.duration;
-  if (edits.published) updatedProps.published = edits.published;
-  if (edits.likes) updatedProps.likes = edits.likes;
+  if (data.title) story.title = data.title;
+  if (data.map) story.map = data.map;
+  if (data.tagLine) story.tagLine = data.tagLine;
+  if (data.duration) story.duration = data.duration;
+  if (data.published !== undefined) story.published = data.published;
 
-  await Story.editStory(storyId, updatedProps);
-  const updatedStory = await Story.findStory(storyId);
-
-  ctx.body = updatedStory;
+  ctx.body = await story.save();
 };
 
 const deleteStory = async (ctx, next) => {
   const storyId = ctx.params.id;
-  const story = await Story.findStory(storyId);
-  const storyTitle = story.title;
+  const story = await Story.findOne({ _id: storyId, editor: ctx.user._id });
+  if (!story) return ctx.throw(404);
   await Story.deleteStory(storyId);
-  const remainingStories = await Story.getAllStories();
-  ctx.body = remainingStories;
-  ctx.status = 200;
+  ctx.status = 204;
 };
 
 module.exports = {

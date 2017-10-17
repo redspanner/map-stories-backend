@@ -9,10 +9,13 @@ require('../db')('mapstory-backend-test');
 const addEvent = async (ctx, next) => {
   try {
     if (ctx.request.body.title) {
-      const target = await Story.findOne({_id: ctx.params.id});
+      const story = await Story.findOne({_id: ctx.params.id, editor: ctx.user._id});
+      if (!story) ctx.throw(404);
+
+      let attachments = [];
       if (ctx.request.body.attachments.length !== 0) {
-        var attachmentsArr = ctx.request.body.attachments.slice();
-        attachmentsArr = await Promise.all(attachmentsArr.map(async attachment => {
+        const attachmentsData = ctx.request.body.attachments;
+        attachments = await Promise.all(attachmentsData.map(async attachment => {
           let attachmentData;
           if (attachment.type === 'Link') {
             attachmentData = {
@@ -26,6 +29,11 @@ const addEvent = async (ctx, next) => {
               type: attachment.type,
               text: attachment.text,
             };
+          } else if (attachment.type === 'Image') {
+            attachmentData = {
+              type: attachment.type,
+              urlImg: attachment.urlImg,
+            };
           } else {
             attachmentData = {
               type: attachment.type,
@@ -35,16 +43,17 @@ const addEvent = async (ctx, next) => {
           return await Attachment.create(attachmentData);
         }));
       }
+
       const eventData = {
         title: ctx.request.body.title,
         startTime: ctx.request.body.startTime,
         mapLocation: ctx.request.body.mapLocation,
         dateAndTime: ctx.request.body.dateAndTime,
-        attachments: attachmentsArr,
+        attachments,
       };
       const createdEvent = await Event.create(eventData);
-      target.events.push(createdEvent);
-      target.save();
+      story.events.push(createdEvent);
+      story.save();
       ctx.status = 201;
       ctx.body = createdEvent;
     } else {
@@ -61,21 +70,24 @@ const addEvent = async (ctx, next) => {
 const editEvent = async (ctx, next) => {
 
   try {
-    const targetStory = await Story.findOne({'_id': ctx.params.id}).populate('events');
-    const edits = ctx.request.body;
+    const story = await Story.findOne({
+      _id: ctx.params.id,
+      editor: ctx.user._id,
+    }).populate('events');
+    if (!story) ctx.throw(404);
+    const data = ctx.request.body;
 
     const updatedProps = {};
 
-    if (edits.title) updatedProps.title = edits.title;
-    if (edits.startTime) updatedProps.map = edits.startTime;
-    if (edits.mapLocation) updatedProps.duration = edits.mapLocation;
-    if (edits.dateAndTime) updatedProps.tagLine = edits.dateAndTime;
-    if (edits.attachments) updatedProps.published = edits.attachments;
+    if (data.title) updatedProps.title = data.title;
+    if (data.startTime) updatedProps.map = data.startTime;
+    if (data.mapLocation) updatedProps.duration = data.mapLocation;
+    if (data.dateAndTime) updatedProps.tagLine = data.dateAndTime;
+    if (data.attachments) updatedProps.published = data.attachments;
 
     const eventId = ctx.params.eventId;
     await Event.findOneAndUpdate({'_id': eventId}, {$set: updatedProps});
-    const updatedEvent = await Event.findOne({'_id': eventId});
-    ctx.body = updatedEvent;
+    ctx.body = await Event.findOne({'_id': eventId});
   } catch (error) {
     throw (401, error);
   }
@@ -84,16 +96,19 @@ const editEvent = async (ctx, next) => {
 //Deletes existing events
 const deleteEvent = async (ctx, next) => {
   try {
-    const targetStory = await Story.findOne({'_id': ctx.params.id})
-                                   .populate('events');
-    const targetEvent = targetStory.events;
-    for (var i = 0; i < targetEvent.length; i++) {
-      if (targetEvent[i]['_id'] == ctx.params.eventId) {
-        targetEvent.splice(i, 1);
+    const story = await Story.findOne({
+      _id: ctx.params.id,
+      editor: ctx.user._id
+    }).populate('events');
+    if (!story) ctx.throw(404);
+    const event = story.events;
+    for (var i = 0; i < event.length; i++) {
+      if (event[i]['_id'] == ctx.params.eventId) {
+        event.splice(i, 1);
       }
     }
-    targetStory.save();
-    ctx.status = 200;
+    story.save();
+    ctx.status = 204;
   } catch (error) {
     throw (401, 'Could not edit event!');
   }
