@@ -57,26 +57,27 @@ const addEvent = async (ctx, next) => {
   }
 };
 
-// 59e1fa0122be5271a4252ba4
-
 //Updates existing events
 const editEvent = async (ctx, next) => {
+
   try {
     const targetStory = await Story.findOne({'_id': ctx.params.id}).populate('events');
-    const targetEvent = targetStory.events;
-    for (var i = 0; i < targetEvent.length; i++) {
-      if (targetEvent[i]['_id'] == ctx.params.eventId) {
-        targetEvent[i]['title'] = ctx.request.body.title;
-        targetEvent[i]['startTime'] = ctx.request.body.startTime;
-        targetEvent[i]['dateAndTime'] = ctx.request.body.dateAndTime;
-        targetEvent[i]['mapLocation'] = ctx.request.body.mapLocation;
-        targetEvent[i]['attachments'] = ctx.request.body.attachment;
-      }
-    }
-    targetStory.save();
-    ctx.status = 200;
+    const edits = ctx.request.body;
+
+    const updatedProps = {};
+
+    if (edits.title) updatedProps.title = edits.title;
+    if (edits.startTime) updatedProps.map = edits.startTime;
+    if (edits.mapLocation) updatedProps.duration = edits.mapLocation;
+    if (edits.dateAndTime) updatedProps.tagLine = edits.dateAndTime;
+    if (edits.attachments) updatedProps.published = edits.attachments;
+
+    const eventId = ctx.params.eventId;
+    await Event.findOneAndUpdate({'_id': eventId}, {$set: updatedProps});
+    const updatedEvent = await Event.findOne({'_id': eventId});
+    ctx.body = updatedEvent;
   } catch (error) {
-    throw (401, 'Could not edit event!');
+    throw (401, error);
   }
 };
 
@@ -88,10 +89,7 @@ const deleteEvent = async (ctx, next) => {
     const targetEvent = targetStory.events;
     for (var i = 0; i < targetEvent.length; i++) {
       if (targetEvent[i]['_id'] == ctx.params.eventId) {
-        let a = targetEvent.splice(0,i);
-        let b = targetEvent.splice(i+1,targetEvent.length-1);
-        let c = a.concat(b);
-        targetStory.events = c;
+        targetEvent.splice(i, 1);
       }
     }
     targetStory.save();

@@ -2,38 +2,52 @@ const mongoose = require('mongoose');
 const Story = require('../model/story.model');
 const Editor = require('../model/editor.model');
 
-const getAllStories = async (ctx, next) => {
-  //filter for published stories
-  const page = parseInt(ctx.params.page);
-  if (ctx.params.page && typeof page === 'number') {
-    const stories = await Story.getAllStories();
-    const pagination = page - 1;
-    const limit = 20;
-    const results = stories.slice(pagination*limit, pagination*limit + limit);
-    if (results.length > 0) {
-      ctx.body = results.filter(story => story.published);
-    } else {
-      ctx.throw(400, 'Page does not exist!');
-    }
-  }
-};
+// const getAllStories = async (ctx, next) => {
+//   //filter for published stories
+//   const page = parseInt(ctx.params.page);
+//   if (ctx.params.page && typeof page === 'number') {
+//     const stories = await Story.getAllStories();
+//     const pagination = page - 1;
+//     const limit = 20;
+//     const results = stories.slice(pagination*limit, pagination*limit + limit);
+//     if (results.length > 0) {
+//       ctx.body = results.filter(story => story.published);
+//     } else {
+//       ctx.throw(400, 'Page does not exist!');
+//     }
+//   }
+// };
+//
+// const getQuery = async (ctx, next) => {
+//   const searchResults = [];
+//   const query = ctx.request.query.q;
+//   const allStories = await Story.getAllStories();
+//   const searchTerm = new RegExp(query, 'gi');
+//   for (var i = 0; i < allStories.length; i++) {
+//     if (allStories[i].title.match(searchTerm)) {
+//       searchResults.push(allStories[i]);
+//     }
+//   }
+//   for (var j = 0; j < allStories.length; j++) {
+//     if (allStories[j].editor.name.match(searchTerm)) {
+//       searchResults.push(allStories[j]);
+//     }
+//   }
+//   ctx.body = searchResults;
+// };
 
-const getQuery = async (ctx, next) => {
-  const searchResults = [];
-  const query = ctx.request.query.q;
-  const allStories = await Story.getAllStories();
-  const searchTerm = new RegExp(query, 'gi');
-  for (var i = 0; i < allStories.length; i++) {
-    if (allStories[i].title.match(searchTerm)) {
-      searchResults.push(allStories[i]);
-    }
+const getAllStories = async (ctx, next) => {
+  try {
+    const page = parseInt(ctx.request.query.page);
+    const q = ctx.request.query.q
+    const stories = await Story.getAllStories(page);
+    const searchTerm = {};
+    searchTerm.title = q;
+
+    ctx.body = stories;
+  } catch (e) {
+    ctx.throw(400, 'Page does not exist!');
   }
-  for (var j = 0; j < allStories.length; j++) {
-    if (allStories[j].editor.name.match(searchTerm)) {
-      searchResults.push(allStories[j]);
-    }
-  }
-  ctx.body = searchResults;
 };
 
 const findStory = async (ctx, next) => {
@@ -68,6 +82,7 @@ const createStory = async (ctx, next) => {
       }
     }
   }
+  // else send a 401 (if no token present)
 };
 
 const editStory = async (ctx, next) => {
@@ -75,14 +90,13 @@ const editStory = async (ctx, next) => {
   const storyId = ctx.params.id;
   const updatedProps = {};
 
-  // if (edits.published) {
-  //   const storyToPublish = await Story.findStory(storyId);
-  //   if (storyToPublish.events.length < 1) {
-  //     // ctx.throw(400,'A Story cannot be published without events!');
-  //     ctx.body = {'error': 'error'};
-  //     return ctx.body;
-  //   }
-  // }
+  if (edits.published) {
+    const storyToPublish = await Story.findStory(storyId);
+    if (storyToPublish.events.length < 1) {
+      ctx.throw(400, 'A Story cannot be published without events!');
+      return ctx.body;
+    }
+  }
 
   if (edits.title) updatedProps.title = edits.title;
   if (edits.map) updatedProps.map = edits.map;
@@ -109,7 +123,7 @@ const deleteStory = async (ctx, next) => {
 
 module.exports = {
   getAllStories,
-  getQuery,
+  // getQuery,
   findStory,
   createStory,
   editStory,

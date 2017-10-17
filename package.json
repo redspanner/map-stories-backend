@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@koa/cors": "^2.2.1",
+    "dotenv": "^4.0.0",
     "kcors": "^2.2.1",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",

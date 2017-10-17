@@ -30,20 +30,22 @@ const storySchema = new Schema({
 const Story = mongoose.model('Story', storySchema);
 
 
-
-Story.getAllStories = () => {
+Story.getAllStories = (page) => {
   return Story
       .find()
-      .populate({path: 'editor', select: 'name avatar'})
+      .skip((page-1)*10)
+      .limit(10)
+      // .populate({path: 'editor', select: 'name avatar'})
       .select('editor title tagLine published likes'); //id is returned by default
 };
+
+// Story.getQuery = ()
 
 Story.findStory = (storyId) => {
   return Story.findOne({_id : storyId})
               .populate({path: 'editor', select: 'name avatar'})
               .populate('events');
 };
-
 
 Story.createStory = (newStory) => {
   return newStory.save();

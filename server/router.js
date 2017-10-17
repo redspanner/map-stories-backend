@@ -5,18 +5,26 @@ const editorController = require('./controllers/editor.controller');
 const eventsController = require('./controllers/events.controller');
 const router = new Router();
 
+const authMiddleware = async (ctx, next) => {
+  let token = ctx.headers.authorization;
+  if (!token) return await next();
+  else ctx.token = token;
+  await next();
+};
+
 //user actions
-router.get('/stories/', storiesController.getQuery);
+// router.get('/stories/', storiesController.getQuery);
+// router.get('/stories/:page', storiesController.getAllStories);
+router.get('/stories', storiesController.getAllStories);
 router.get('/stories/:page', storiesController.getAllStories);
 router.get('/stories/story/:id', storiesController.findStory);
 
 //editor actions
-router.post('/sign-up', editorController.createEditor);
-router.put('/sign-out', editorController.signoutEditor);
+router.post('/sign-up', editorController.signUpEditor);
 
 router.get('/me/stories/:id', editorController.getEditorStories);
 
-router.post('/stories', storiesController.createStory);
+router.post('/stories', authMiddleware, storiesController.createStory);
 router.put('/stories/story/:id', storiesController.editStory);
 router.delete('/stories/story/:id', storiesController.deleteStory);
 

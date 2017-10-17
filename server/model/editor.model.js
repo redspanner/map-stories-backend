@@ -11,21 +11,22 @@ const editorSchema = new Schema({
 
 const Editor = mongoose.model('Editor', editorSchema);
 
-Editor.createEditor = async (editorData) => {
+Editor.createEditor = (editorData) => {
   const newEditor = new Editor ({
     name: editorData.name,
     email: editorData.email,
     token: editorData.token,
     picture: editorData.picture,
   });
-  return await newEditor.save();
+  return newEditor.save();
 };
 
-Editor.searchEditors = async (query) => {
-  const editors = await Editor.find({'name' : new RegExp(query, 'gi')});
+Editor.searchEditors = (query) => {
+  const editors = Editor.find({'name' : new RegExp(query, 'gi')});
   if (editors) {
     return editors;
   }
 };
+
 
 module.exports = Editor;
