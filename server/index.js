@@ -9,9 +9,9 @@ const app = new Koa();
 const router = require('./router');
 require('./db')('mapstory-backend');
 
-const port = process.env.PORT
+const port = process.env.PORT;
 
-const corsOptions = {origin: `http://localhost:${port}`};
+const corsOptions = {origin: 'http://localhost:3000'};
 
 app
   .use(cors(corsOptions))
@@ -28,16 +28,8 @@ app
       }
     }
   })
-  // .use(async (ctx, next) => {
-  //   let token = ctx.headers.authorization;
-  //   if (!token) return await next();
-  //   else ctx.token = token;
-  //   await next();
-  // })
   .use(bodyParser())
   .use(router.routes())
   .use(router.allowedMethods());
 
-app.listen(4000, ()=> {
-  Console.log('koa app listening on port 4000');
-});
+app.listen(4000, () => Console.log('koa app listening on port 4000'));

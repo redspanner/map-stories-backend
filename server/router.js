@@ -14,7 +14,6 @@ const authMiddleware = async (ctx, next) => {
     ctx.status = 401;
     return;
   }
-  
   ctx.user = await Editor.findOne({ token });
   if (!ctx.user) {
     ctx.status = 401;
@@ -29,9 +28,7 @@ router.get('/stories/:id', storiesController.findStory);
 
 //editor actions
 router.post('/sign-up', editorController.signUpEditor);
-
 router.get('/me/stories', authMiddleware, editorController.getEditorStories);
-
 router.post('/stories', authMiddleware, storiesController.createStory);
 router.put('/stories/:id', authMiddleware, storiesController.editStory);
 router.delete('/stories/:id', authMiddleware, storiesController.deleteStory);

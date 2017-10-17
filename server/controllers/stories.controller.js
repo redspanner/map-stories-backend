@@ -2,52 +2,21 @@ const mongoose = require('mongoose');
 const Story = require('../model/story.model');
 const Editor = require('../model/editor.model');
 
-// const getAllStories = async (ctx, next) => {
-//   //filter for published stories
-//   const page = parseInt(ctx.params.page);
-//   if (ctx.params.page && typeof page === 'number') {
-//     const stories = await Story.getAllStories();
-//     const pagination = page - 1;
-//     const limit = 20;
-//     const results = stories.slice(pagination*limit, pagination*limit + limit);
-//     if (results.length > 0) {
-//       ctx.body = results.filter(story => story.published);
-//     } else {
-//       ctx.throw(400, 'Page does not exist!');
-//     }
-//   }
-// };
-//
-// const getQuery = async (ctx, next) => {
-//   const searchResults = [];
-//   const query = ctx.request.query.q;
-//   const allStories = await Story.getAllStories();
-//   const searchTerm = new RegExp(query, 'gi');
-//   for (var i = 0; i < allStories.length; i++) {
-//     if (allStories[i].title.match(searchTerm)) {
-//       searchResults.push(allStories[i]);
-//     }
-//   }
-//   for (var j = 0; j < allStories.length; j++) {
-//     if (allStories[j].editor.name.match(searchTerm)) {
-//       searchResults.push(allStories[j]);
-//     }
-//   }
-//   ctx.body = searchResults;
-// };
-
 const getAllStories = async (ctx, next) => {
   try {
     const page = parseInt(ctx.request.query.page);
     const q = ctx.request.query.q;
     const searchTerm = {};
-    const regexp = new RegExp(q , 'gi')
+    const regexp = new RegExp(q , 'gi');
+    let stories = [];
     if (q) {
       searchTerm.title = regexp;
+      stories = await Story.getAllStories(searchTerm, page);
+    } else {
+      searchTerm.published = true;
+      stories = await Story.getAllStories(searchTerm, page);
     }
-    const stories = await Story.getAllStories(searchTerm, page);
     ctx.body = stories;
-
   } catch (e) {
     ctx.throw(400, 'No results found.');
   }
