@@ -5,7 +5,7 @@ const Story = require('../model/story.model');
 const attachmentSchema = new Schema({
   type: String,
   url: String,
-  urlImg: String,
+  imageUrl: String,
   title: String,
   text: String,
 });
