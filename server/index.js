@@ -1,17 +1,25 @@
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
-const cors = require('kcors');
+const cors = require('koa-cors');
+require('dotenv').config();
+
 const Console = console;
 
 const app = new Koa();
 const router = require('./router');
-const db = require('./db');
+require('./db')('mapstory-backend');
+
+const port = process.env.PORT;
+
+const corsOptions = {origin: 'http://localhost:3000'};
 
 app
-  .use(async (cxt, next) => {
+  .use(cors(corsOptions))
+  .use(async (ctx, next) => {
     try {
       await next();
     } catch (e) {
+      console.error (e);
       ctx.status = 500;
       if (e.message) {
         ctx.body = {
@@ -21,10 +29,7 @@ app
     }
   })
   .use(bodyParser())
-  .use(cors())
   .use(router.routes())
   .use(router.allowedMethods());
 
-app.listen(3000, ()=> {
-  Console.log('koa app listening on port 3000');
-});
+app.listen(4000, () => Console.log('koa app listening on port 4000'));

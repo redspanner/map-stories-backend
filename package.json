@@ -4,7 +4,9 @@
   "description": "mapstory backend",
   "main": "index.js",
   "scripts": {
-    "test": "mocha './server/tests/*.test.js'"
+    "test": "mocha './server/tests/*.test.js'",
+    "dev": "nodemon server/index.js",
+    "start": "node server/index.js"
   },
   "repository": {
     "type": "git",
@@ -29,9 +31,12 @@
     "stylelint-config-standard": "^13.0.0"
   },
   "dependencies": {
+    "@koa/cors": "^2.2.1",
+    "dotenv": "^4.0.0",
     "kcors": "^2.2.1",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",
+    "koa-cors": "0.0.16",
     "koa-router": "^7.2.1",
     "koa-static": "^4.0.1",
     "mocha": "^4.0.1",

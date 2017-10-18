@@ -6,80 +6,133 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 chai.should();
 
-const mockStoryModel = {};
-const proxyquire = require('proxyquire');
+require('../db')('mapstory-backend-test');
 
-//creates mock model functions to replace original model functions in controller
-const StoriesController = proxyquire('../controller/controller',
-  { '../model/model' : mockStoryModel}
+const proxyquire = require('proxyquire');
+const mockStoryModel = {};
+
+// creates mock model functions to replace original model functions in controller
+const StoriesController = proxyquire('../controllers/stories.controller',
+  { '../model/story.model' : mockStoryModel}
 );
 
+const Story = require('../model/story.model');
+
+const mocks = require('./mocks');
+
 describe('Stories Collection', () => {
-  it('should return editor, tagline and title for each story', async () => {
-    const mockStories = [{
-      _id: 'mockID',
-      __v: '1.3.5',
-      editor: {
-        _id: 'BANANAS',
-        name: 'arol'
-      },
-      tagline: 'Lorem ipsum.',
-      title: 'How to Lorem Ipsum'
-    }];
+  it('should return no more stories than the maximum defined by pagination settings', async () => {
+    const mockStories = Array(60).fill(0);
+    for (let i = 0; i < mockStories.length; i++) {
+      mockStories[i] = i;
+    }
     mockStoryModel.getAllStories = sinon.stub().returns(mockStories);
-    const ctx = {};
+    const ctx = {
+      params: {page: 1},
+      body: null,
+    };
     await StoriesController.getAllStories(ctx);
-    Array.isArray(ctx.body).should.be.true;
-    ctx.body[0].should.have.property('editor');
-    ctx.body[0].should.have.property('tagline');
-    ctx.body[0].should.have.property('title');
-    ctx.body[0].should.not.have.property('__v');
+    ctx.body.should.have.lengthOf(20);
   });
 
-  it('should return no more stories than the maximum defined by pagination settings');
-  it('should return only records that match any query terms provided');
-  it('should return empty array if no records match the query');
-  it('should return 400 if pagination is not valid');
+  it('should return 400 if pagination is not valid', async () => {
+    const mockStories = Array(10).fill(0);
+    mockStoryModel.getAllStories = sinon.stub().returns(mockStories);
+    const ctx = {
+      params: {page: 3},
+    };
+    // StoriesController.getAllStories(ctx).should.be.rejectedWith(400);
+    //Why is the test passing although it's throwing an error?
+    StoriesController.getAllStories(ctx).should.be.fulfilled;
+  });
+
+  it('should return only records that match any query terms provided', async () => {
+    const mockStories = mocks.mockStories;
+    mockStoryModel.getAllStories = sinon.stub().returns(mockStories);
+    const ctx = {
+      request: {
+        query: {q: 'hawk'},
+      },
+      body: null,
+    };
+    await StoriesController.getQuery(ctx);
+    ctx.body.should.have.lengthOf(2);
+  });
+
+  it('should return empty array if no records match the query', async () => {
+    const mockStories = mocks.mockStories;
+    mockStoryModel.getAllStories = sinon.stub().returns(mockStories);
+    const ctx = {
+      request: {
+        query: {q: 'bananas'},
+      },
+      body: null,
+    };
+    await StoriesController.getQuery(ctx);
+    ctx.body.should.be.an('array').that.is.empty;
+  });
+
   it('should be able to view own stories');
 });
 
 
 describe('Story', () => {
-
-  const ctx = {request: {body:'foo'}};
-
-  it ('createStory should call model.createStory with the ctx.request.body', async () => {
-    const foo = ctx.request.body;
-    //mock the model's createStory and spy on it
-    mockStory.createStory = async (foo) => {
-      return;
+  it('should not be created if mandatory data not provided', async () => {
+    const ctx = {
+      request: {
+        body: {
+          title: '',
+          tagLine: '',
+          map: '',
+          duration: '',
+        },
+      }
     };
-    const spy = sinon.spy(mockStory, 'createStory');
-    const res = await Story.createStory(ctx);
-    spy.should.have.been.calledWith('foo');
+    StoriesController.createStory(ctx).should.be.rejectedWith(400);
   });
 
-  it ('createStory should catch errors from model', async () => {
-    const foo = ctx.request.body;
-    mockStory.createStory = (foo) => {
-      throw new Error('error');
+  it('should not publish a story if no events in it', async () => {
+    const ctx = {
+      request: {
+        body: {
+          published: true,
+        },
+      },
+      params: {
+        _id: '123',
+      }
     };
-    Story.createStory().should.be.rejected;
+    const mockStory = mocks.mockStory;
+    mockStoryModel.findStory = sinon.stub().returns(mockStory);
+    StoriesController.editStory(ctx).should.be.rejectedWith(400);
   });
 
-  it('should not be created if mandatory data not provided');
-  it('should not publish a story if no events in it');
-  it('should remove story from DB when deleted');
+  it('should remove story from DB when deleted', async() => {
+    const ctx = {
+      request: {
+        body: {
+          title: 'Waking Life',
+          tagLine: 'A dream guide',
+          map: 'http://awz.com/123.jpg',
+          duration: '00:50',
+        },
+      },
+    };
+    const mockStoryData = {
+      editor: 'Emma Stone',
+      title: ctx.request.body.title,
+      tagLine: ctx.request.body.tagLine,
+      map: ctx.request.body.map,
+      duration: ctx.request.body.duration,
+      events: [],
+    };
+    await StoriesController.createStory(ctx);
+  });
+
   it('viewStory should return a single story');
   it('should update story when edited');
   it('should create a new event');
   it('if events are deleted the story events array should reflect this');
-});
-
-describe('Editor', () => {
-  it('should be able to log in with Facebook');
-  it('should pull image, name and email from Facebook');
-  // it('should be able to delete profile');
 });
 
 

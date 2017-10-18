@@ -1,14 +1,41 @@
 const Router = require('koa-router');
 
-const controller = require('./controller/controller');
+const storiesController = require('./controllers/stories.controller');
+const editorController = require('./controllers/editor.controller');
+const eventsController = require('./controllers/events.controller');
 const router = new Router();
 
+const Editor = require('./model/editor.model');
+
+const authMiddleware = async (ctx, next) => {
+  let token = ctx.headers.authorization;
+  if (token) token = token.split(' ')[1];
+  if (!token) {
+    ctx.status = 401;
+    return;
+  }
+  ctx.user = await Editor.findOne({ token });
+  if (!ctx.user) {
+    ctx.status = 401;
+    return;
+  }
+  await next();
+};
+
 //user actions
-router.get('/stories', controller.getAllStories);
-router.get('/stories/:id', controller.viewStory);
+router.get('/stories', storiesController.getAllStories);
+router.get('/stories/:id', storiesController.findStory);
 
 //editor actions
-router.post('/stories', controller.createStory);
-router.put('/stories/:id', controller.editStoryMeta);
+router.post('/sign-up', editorController.signUpEditor);
+router.get('/me/stories', authMiddleware, editorController.getEditorStories);
+router.post('/stories', authMiddleware, storiesController.createStory);
+router.put('/stories/:id', authMiddleware, storiesController.editStory);
+router.delete('/stories/:id', authMiddleware, storiesController.deleteStory);
+
+//event actions
+router.post('/stories/:id/event', authMiddleware, eventsController.addEvent);
+router.put('/stories/:id/event/:eventId', authMiddleware, eventsController.editEvent);
+router.delete('/stories/:id/event/:eventId', authMiddleware, eventsController.deleteEvent);
 
 module.exports = router;
