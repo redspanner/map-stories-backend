@@ -11,8 +11,8 @@ const attachmentSchema = new Schema({
 });
 
 const coordinatesSchema = new Schema({
-  lat: String,
-  lng: String,
+  lat: Number,
+  lng: Number,
 });
 
 const eventSchema = new Schema({

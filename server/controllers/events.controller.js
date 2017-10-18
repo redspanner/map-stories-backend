@@ -4,8 +4,6 @@ const Event = require('../model/event.model').Event;
 const Attachment = require('../model/event.model').Attachment;
 const Coordinates = require('../model/event.model').Coordinates;
 
-require('../db')('mapstory-backend-test');
-
 //Adds event to events array within story object
 const addEvent = async (ctx, next) => {
   try {
@@ -47,7 +45,6 @@ const addEvent = async (ctx, next) => {
       }
 
       const coordinatesData = ctx.request.body.coordinates;
-      const coordinates = await Coordinates.create(coordinatesData);
 
       const eventData = {
         title: ctx.request.body.title,
@@ -89,7 +86,8 @@ const editEvent = async (ctx, next) => {
     if (data.startTime) updatedProps.map = data.startTime;
     if (data.mapLocation) updatedProps.duration = data.mapLocation;
     if (data.dateAndTime) updatedProps.tagLine = data.dateAndTime;
-    if (data.attachments) updatedProps.published = data.attachments;
+    if (data.attachments) updatedProps.attachments = data.attachments;
+    if (data.coordinates) updatedProps.coordinates = data.coordinates;
 
     const eventId = ctx.params.eventId;
     await Event.findOneAndUpdate({'_id': eventId}, {$set: updatedProps});

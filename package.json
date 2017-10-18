@@ -4,7 +4,9 @@
   "description": "mapstory backend",
   "main": "index.js",
   "scripts": {
-    "test": "mocha './server/tests/*.test.js'"
+    "test": "mocha './server/tests/*.test.js'",
+    "dev": "nodemon server/index.js",
+    "start": "node server/index.js"
   },
   "repository": {
     "type": "git",
