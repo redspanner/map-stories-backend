@@ -18,22 +18,22 @@ const addEvent = async (ctx, next) => {
         const attachmentsData = ctx.request.body.attachments;
         attachments = await Promise.all(attachmentsData.map(async attachment => {
           let attachmentData;
-          if (attachment.type === 'Link') {
+          if (attachment.type === 'link') {
             attachmentData = {
               type: attachment.type,
               url: attachment.url,
-              urlImg: attachment.urlImg,
+              imageUrl: attachment.imageUrl,
               title: attachment.title,
             };
-          } else if (attachment.type === 'Text') {
+          } else if (attachment.type === 'text') {
             attachmentData = {
               type: attachment.type,
               text: attachment.text,
             };
-          } else if (attachment.type === 'Image') {
+          } else if (attachment.type === 'image') {
             attachmentData = {
               type: attachment.type,
-              urlImg: attachment.urlImg,
+              imageUrl: attachment.imageUrl,
             };
           } else {
             attachmentData = {
