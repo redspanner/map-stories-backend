@@ -10,7 +10,7 @@ const attachmentSchema = new Schema({
   text: String,
 });
 
-const locationSchema = new Schema({
+const coordinatesSchema = new Schema({
   lat: String,
   lng: String,
 });
@@ -20,16 +20,16 @@ const eventSchema = new Schema({
   startTime: String,
   dateAndTime: String,
   mapLocation: String,
-  location: [locationSchema],
+  coordinates: [coordinatesSchema],
   attachments: [attachmentSchema],
 });
 
 const Event = mongoose.model('Event', eventSchema);
-const Location = mongoose.model('Location', locationSchema);
+const Coordinates = mongoose.model('Coordinates', coordinatesSchema);
 const Attachment = mongoose.model('Attachment', attachmentSchema);
 
 module.exports = {
   Event,
-  Location,
+  Coordinates,
   Attachment,
 };
