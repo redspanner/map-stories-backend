@@ -18,7 +18,7 @@ const locationSchema = new Schema({
 const eventSchema = new Schema({
   title: String,
   startTime: String,
-  dateAndTime: Date,
+  dateAndTime: String,
   mapLocation: String,
   location: [locationSchema],
   attachments: [attachmentSchema],
