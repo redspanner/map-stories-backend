@@ -39,12 +39,11 @@ const addEvent = async (ctx, next) => {
               url: attachment.url,
             };
           }
-          console.log(attachmentData);
           return await Attachment.create(attachmentData);
         }));
       }
 
-      const coordinatesData = ctx.request.body.coordinates;
+      const coordinates = ctx.request.body.coordinates;
 
       const eventData = {
         title: ctx.request.body.title,
