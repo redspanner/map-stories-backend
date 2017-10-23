@@ -1,35 +1,34 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Story = require('../model/story.model');
 
 const attachmentSchema = new Schema({
   type: String,
   url: String,
-  imageUrl: String,
+  urlImg: String,
   title: String,
   text: String,
 });
 
-const coordinatesSchema = new Schema({
-  lat: Number,
-  lng: Number,
+const locationSchema = new Schema({
+  lat: String,
+  lng: String,
 });
 
 const eventSchema = new Schema({
   title: String,
   startTime: String,
-  dateAndTime: String,
+  dateAndTime: Date,
   mapLocation: String,
-  coordinates: [coordinatesSchema],
+  location: locationSchema,
   attachments: [attachmentSchema],
 });
 
 const Event = mongoose.model('Event', eventSchema);
-const Coordinates = mongoose.model('Coordinates', coordinatesSchema);
+const Location = mongoose.model('Location', locationSchema);
 const Attachment = mongoose.model('Attachment', attachmentSchema);
 
 module.exports = {
   Event,
-  Coordinates,
+  Location,
   Attachment,
 };

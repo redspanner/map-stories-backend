@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 const Story = require('../model/story.model');
 const Event = require('../model/event.model').Event;
 const Attachment = require('../model/event.model').Attachment;
-const Coordinates = require('../model/event.model').Coordinates;
+const Location = require('../model/event.model').Location;
+
+require('../db')('mapstory-backend-test');
 
 //Adds event to events array within story object
 const addEvent = async (ctx, next) => {
@@ -16,22 +18,22 @@ const addEvent = async (ctx, next) => {
         const attachmentsData = ctx.request.body.attachments;
         attachments = await Promise.all(attachmentsData.map(async attachment => {
           let attachmentData;
-          if (attachment.type === 'link') {
+          if (attachment.type === 'Link') {
             attachmentData = {
               type: attachment.type,
               url: attachment.url,
-              imageUrl: attachment.imageUrl,
+              urlImg: attachment.urlImg,
               title: attachment.title,
             };
-          } else if (attachment.type === 'text') {
+          } else if (attachment.type === 'Text') {
             attachmentData = {
               type: attachment.type,
               text: attachment.text,
             };
-          } else if (attachment.type === 'image') {
+          } else if (attachment.type === 'Image') {
             attachmentData = {
               type: attachment.type,
-              imageUrl: attachment.imageUrl,
+              urlImg: attachment.urlImg,
             };
           } else {
             attachmentData = {
@@ -43,14 +45,15 @@ const addEvent = async (ctx, next) => {
         }));
       }
 
-      const coordinates = ctx.request.body.coordinates;
+      const locationData = ctx.request.body.location;
+      const location = await Location.create(locationData);
 
       const eventData = {
         title: ctx.request.body.title,
         startTime: ctx.request.body.startTime,
         mapLocation: ctx.request.body.mapLocation,
         dateAndTime: ctx.request.body.dateAndTime,
-        coordinates,
+        location,
         attachments,
       };
       const createdEvent = await Event.create(eventData);
@@ -85,8 +88,7 @@ const editEvent = async (ctx, next) => {
     if (data.startTime) updatedProps.map = data.startTime;
     if (data.mapLocation) updatedProps.duration = data.mapLocation;
     if (data.dateAndTime) updatedProps.tagLine = data.dateAndTime;
-    if (data.attachments) updatedProps.attachments = data.attachments;
-    if (data.coordinates) updatedProps.coordinates = data.coordinates;
+    if (data.attachments) updatedProps.published = data.attachments;
 
     const eventId = ctx.params.eventId;
     await Event.findOneAndUpdate({'_id': eventId}, {$set: updatedProps});
@@ -111,6 +113,7 @@ const deleteEvent = async (ctx, next) => {
       }
     }
     story.save();
+    // await Event.findByIdAndRemove(ctx.params.eventId)
     ctx.status = 204;
   } catch (error) {
     throw (401, 'Could not edit event!');
