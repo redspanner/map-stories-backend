@@ -1,6 +1,5 @@
 # Map Stories Backend
 
-## Synopsis
 Map Stories is a location based storytelling app. Editors can create map based stories and place markers on the map. Each marker is associated with an event, which has information and attachments.
 
 ## Motivation
@@ -12,8 +11,10 @@ Clone the [Map Stories Frontend](https://github.com/fredpinon/map-stories-front-
 
 ## Usage with Postman
 Download the [Map Stories Collection](https://documenter.getpostman.com/view/2573635/map-story-localhost/71FXBMv).
+Go into the repo's server and run `nodemon index.js`
+In postman, use the 'Create Editor' route and create an editor with name, email and token. Token is a string.
 In Postman: Manage Environments > Globals
-Under Key, set a property, Token and input a dummy token to test authenticated routes.  
+Under Key, set a property, Token and input the dummy token to test authenticated routes.
 
 
 ## Tech Stack
