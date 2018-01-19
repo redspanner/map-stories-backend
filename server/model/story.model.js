@@ -7,7 +7,6 @@ const attachmentsSchema = new Schema({
   link: String,
   imageLink: String,
   video: String,
-  audio: String,
 });
 
 const storySchema = new Schema({
