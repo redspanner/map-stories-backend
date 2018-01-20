@@ -45,7 +45,7 @@ const addEvent = async (ctx, next) => {
         }));
       }
 
-      const locationData = ctx.request.body.location;
+      const locationData = ctx.request.body.coordinates;
       const location = await Location.create(locationData);
 
       const eventData = {
