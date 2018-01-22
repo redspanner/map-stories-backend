@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const Story = require('../model/story.model');
 const Event = require('../model/event.model').Event;
 const Attachment = require('../model/event.model').Attachment;
-const Location = require('../model/event.model').Location;
 
 require('../db')('mapstory-backend-test');
 
@@ -44,9 +43,7 @@ const addEvent = async (ctx, next) => {
           return await Attachment.create(attachmentData);
         }));
       }
-
-      const locationData = ctx.request.body.location;
-      const location = await Location.create(locationData);
+      const location = ctx.request.body.coordinates;
 
       const eventData = {
         title: ctx.request.body.title,
