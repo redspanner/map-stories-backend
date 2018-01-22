@@ -43,6 +43,7 @@ const addEvent = async (ctx, next) => {
           return await Attachment.create(attachmentData);
         }));
       }
+      
       const location = ctx.request.body.coordinates;
 
       const eventData = {
