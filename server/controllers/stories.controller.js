@@ -12,10 +12,10 @@ const getAllStories = async (ctx, next) => {
     let stories = [];
     if (q) {
       searchTerm.title = regexp;
-      stories = await Story.getAllStories(searchTerm, page);
+      stories = await Story.getAllStories(searchTerm, page).populate('events');
     } else {
       searchTerm.published = true;
-      stories = await Story.getAllStories(searchTerm, page);
+      stories = await Story.getAllStories(searchTerm, page).populate('events');
     }
     ctx.body = stories;
   } catch (e) {
@@ -25,7 +25,7 @@ const getAllStories = async (ctx, next) => {
 
 const findStory = async (ctx, next) => {
   const storyId = ctx.params.id;
-  const story = await Story.findStory(storyId);
+  const story = await Story.findStory(storyId).populate('events');
   ctx.body = story;
 };
 
