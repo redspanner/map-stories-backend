@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Story = require('../model/story.model');
 const Editor = require('../model/editor.model');
+const Event = require('../model/event.model').Event;
 
 const getAllStories = async (ctx, next) => {
   try {
@@ -78,6 +79,8 @@ const deleteStory = async (ctx, next) => {
   const storyId = ctx.params.id;
   const story = await Story.findOne({ _id: storyId, editor: ctx.user._id });
   if (!story) return ctx.throw(404);
+  story.events.forEach(el => Event.findByIdAndRemove(el,
+    (err, data) => err ? console.log(err) : null));
   const deletedStory = await Story.deleteStory(storyId);
   ctx.body = deletedStory;
 };
