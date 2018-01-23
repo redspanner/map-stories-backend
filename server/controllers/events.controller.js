@@ -44,7 +44,7 @@ const addEvent = async (ctx, next) => {
         }));
       }
 
-      const location = ctx.request.body.coordinates;
+      const location = ctx.request.body.location;
 
       const eventData = {
         title: ctx.request.body.title,
@@ -106,6 +106,7 @@ const deleteEvent = async (ctx, next) => {
     const event = story.events;
     for (var i = 0; i < event.length; i++) {
       if (event[i]['_id'] == ctx.params.eventId) {
+        Event.findByIdAndRemove(ctx.params.eventId);
         event.splice(i, 1);
       }
     }
