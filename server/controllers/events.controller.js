@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const Story = require('../model/story.model');
 const Event = require('../model/event.model').Event;
 const Attachment = require('../model/event.model').Attachment;
-const Location = require('../model/event.model').Location;
 
 require('../db')('mapstory-backend-test');
 
@@ -10,7 +9,7 @@ require('../db')('mapstory-backend-test');
 const addEvent = async (ctx, next) => {
   try {
     if (ctx.request.body.title) {
-      const story = await Story.findOne({_id: ctx.params.id, editor: ctx.user._id});
+      let story = await Story.findOne({_id: ctx.params.id, editor: ctx.user._id});
       if (!story) ctx.throw(404);
 
       let attachments = [];
@@ -45,8 +44,7 @@ const addEvent = async (ctx, next) => {
         }));
       }
 
-      const locationData = ctx.request.body.location;
-      const location = await Location.create(locationData);
+      const location = ctx.request.body.location;
 
       const eventData = {
         title: ctx.request.body.title,
@@ -60,7 +58,11 @@ const addEvent = async (ctx, next) => {
       story.events.push(createdEvent);
       story.save();
       ctx.status = 201;
-      ctx.body = createdEvent;
+      story = await Story.findOne({
+        _id: ctx.params.id,
+        editor: ctx.user._id,
+      }).populate('events');
+      ctx.body = story;
     } else {
       throw 'No title provided!';
     }
@@ -73,15 +75,13 @@ const addEvent = async (ctx, next) => {
 
 //Updates existing events
 const editEvent = async (ctx, next) => {
-
   try {
-    const story = await Story.findOne({
+    let story = await Story.findOne({
       _id: ctx.params.id,
       editor: ctx.user._id,
     }).populate('events');
     if (!story) ctx.throw(404);
     const data = ctx.request.body;
-
     const updatedProps = {};
 
     if (data.title) updatedProps.title = data.title;
@@ -89,10 +89,15 @@ const editEvent = async (ctx, next) => {
     if (data.mapLocation) updatedProps.duration = data.mapLocation;
     if (data.dateAndTime) updatedProps.tagLine = data.dateAndTime;
     if (data.attachments) updatedProps.published = data.attachments;
+    if (data.location) updatedProps.location = data.location;
 
     const eventId = ctx.params.eventId;
     await Event.findOneAndUpdate({'_id': eventId}, {$set: updatedProps});
-    ctx.body = await Event.findOne({'_id': eventId});
+    story = await Story.findOne({
+      _id: ctx.params.id,
+      editor: ctx.user._id,
+    }).populate('events');
+    ctx.body = story;
   } catch (error) {
     throw (401, error);
   }
@@ -109,6 +114,7 @@ const deleteEvent = async (ctx, next) => {
     const event = story.events;
     for (var i = 0; i < event.length; i++) {
       if (event[i]['_id'] == ctx.params.eventId) {
+        Event.findByIdAndRemove(ctx.params.eventId);
         event.splice(i, 1);
       }
     }
