@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Story = require('../model/story.model');
 const Editor = require('../model/editor.model');
+const Event = require('../model/event.model').Event;
 const AWS = require('aws-sdk')
 const Credentials = require('../credentials');
 
@@ -26,6 +27,8 @@ const getToken = (ctx, next) => {
   }
 }
 
+
+
 const getAllStories = async (ctx, next) => {
   try {
     const page = parseInt(ctx.request.query.page);
@@ -35,10 +38,10 @@ const getAllStories = async (ctx, next) => {
     let stories = [];
     if (q) {
       searchTerm.title = regexp;
-      stories = await Story.getAllStories(searchTerm, page);
+      stories = await Story.getAllStories(searchTerm, page).populate('events');
     } else {
       searchTerm.published = true;
-      stories = await Story.getAllStories(searchTerm, page);
+      stories = await Story.getAllStories(searchTerm, page).populate('events');
     }
     ctx.body = stories;
   } catch (e) {
@@ -48,7 +51,7 @@ const getAllStories = async (ctx, next) => {
 
 const findStory = async (ctx, next) => {
   const storyId = ctx.params.id;
-  const story = await Story.findStory(storyId);
+  const story = await Story.findStory(storyId).populate('events');
   ctx.body = story;
 };
 
@@ -102,6 +105,8 @@ const deleteStory = async (ctx, next) => {
   const storyId = ctx.params.id;
   const story = await Story.findOne({ _id: storyId, editor: ctx.user._id });
   if (!story) return ctx.throw(404);
+  story.events.forEach(el => Event.findByIdAndRemove(el,
+    (err, data) => err ? console.log(err) : null));
   const deletedStory = await Story.deleteStory(storyId);
   ctx.body = deletedStory;
 };
