@@ -13,7 +13,6 @@ AWS.config.update({
 const s3 = new AWS.S3();
 
 const getToken = (ctx, next) => {
-  console.log("hi");
   try {
     const res = s3.createPresignedPost({
       Bucket: 'map-story-photos',
@@ -21,9 +20,6 @@ const getToken = (ctx, next) => {
         ['starts-with', '$key', `event-${ctx.params.eventId}/`]
       ]
     })
-    console.log("hi");
-    console.log(`event-${ctx.params.eventId}/`);
-    console.log("res", res);
     ctx.body = res;
   } catch (e) {
     ctx.throw(400, 'error')
