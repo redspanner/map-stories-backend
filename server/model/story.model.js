@@ -7,7 +7,6 @@ const attachmentsSchema = new Schema({
   link: String,
   imageLink: String,
   video: String,
-  audio: String,
 });
 
 const storySchema = new Schema({
@@ -36,7 +35,8 @@ Story.getAllStories = (searchTerm, page) => {
 Story.findStory = (storyId) => {
   return Story.findOne({_id : storyId})
               .populate({path: 'editor', select: 'name avatar'})
-              .populate('events');
+              .populate('events')
+              .populate('location');
 };
 
 Story.createStory = (newStory) => {

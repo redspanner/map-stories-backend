@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const Story = require('../model/story.model');
 const Event = require('../model/event.model').Event;
 const Attachment = require('../model/event.model').Attachment;
-const Location = require('../model/event.model').Location;
 
 require('../db')('mapstory-backend-test');
 
@@ -45,8 +44,7 @@ const addEvent = async (ctx, next) => {
         }));
       }
 
-      const locationData = ctx.request.body.location;
-      const location = await Location.create(locationData);
+      const location = ctx.request.body.location;
 
       const eventData = {
         title: ctx.request.body.title,
@@ -73,7 +71,6 @@ const addEvent = async (ctx, next) => {
 
 //Updates existing events
 const editEvent = async (ctx, next) => {
-
   try {
     const story = await Story.findOne({
       _id: ctx.params.id,
@@ -81,7 +78,6 @@ const editEvent = async (ctx, next) => {
     }).populate('events');
     if (!story) ctx.throw(404);
     const data = ctx.request.body;
-
     const updatedProps = {};
 
     if (data.title) updatedProps.title = data.title;
@@ -89,6 +85,7 @@ const editEvent = async (ctx, next) => {
     if (data.mapLocation) updatedProps.duration = data.mapLocation;
     if (data.dateAndTime) updatedProps.tagLine = data.dateAndTime;
     if (data.attachments) updatedProps.published = data.attachments;
+    if (data.location) updatedProps.location = data.location;
 
     const eventId = ctx.params.eventId;
     await Event.findOneAndUpdate({'_id': eventId}, {$set: updatedProps});
