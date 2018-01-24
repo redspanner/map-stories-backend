@@ -2,6 +2,32 @@ const mongoose = require('mongoose');
 const Story = require('../model/story.model');
 const Editor = require('../model/editor.model');
 const Event = require('../model/event.model').Event;
+const AWS = require('aws-sdk')
+const Credentials = require('../credentials');
+
+AWS.config.update({
+  region: 'eu-west-2',
+  accessKeyId: Credentials.AWS_ACCESS_KEY_ID,
+  secretAccessKey: Credentials.AWS_ACCESS_KEY_SECRET
+})
+
+const s3 = new AWS.S3();
+
+const getToken = (ctx, next) => {
+  try {
+    const res = s3.createPresignedPost({
+      Bucket: 'map-story-photos',
+      Conditions: [
+        ['starts-with', '$key', `event-${ctx.params.eventId}/`]
+      ]
+    })
+    ctx.body = res;
+  } catch (e) {
+    ctx.throw(400, 'error')
+  }
+}
+
+
 
 const getAllStories = async (ctx, next) => {
   try {
@@ -86,6 +112,7 @@ const deleteStory = async (ctx, next) => {
 };
 
 module.exports = {
+  getToken,
   getAllStories,
   findStory,
   createStory,

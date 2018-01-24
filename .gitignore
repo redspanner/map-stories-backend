@@ -31,3 +31,5 @@ private
 dist
 
 .env
+
+credentials.js

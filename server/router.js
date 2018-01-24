@@ -33,10 +33,12 @@ router.get('/me/stories', authMiddleware, editorController.getEditorStories);
 router.post('/stories', authMiddleware, storiesController.createStory);
 router.put('/stories/:id', authMiddleware, storiesController.editStory);
 router.delete('/stories/:id', authMiddleware, storiesController.deleteStory);
+router.get('/token/event/:eventId', storiesController.getToken);
 
 //event actions
 router.post('/stories/:id/event', authMiddleware, eventsController.addEvent);
 router.put('/stories/:id/event/:eventId', authMiddleware, eventsController.editEvent);
 router.delete('/stories/:id/event/:eventId', authMiddleware, eventsController.deleteEvent);
+
 
 module.exports = router;
